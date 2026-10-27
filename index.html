@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家庭工作台 · 财务分析 × 小树苗</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F5F6F3;--card:#FFFFFF;--line:#E6E9E2;--ink:#1B231F;--ink2:#5B6660;--ink3:#8D978F;
+  --fin:#1E5F6E;--fin2:#2E8FA8;--finsoft:#EAF3F5;
+  --kid:#4C8B47;--kid2:#7BB661;--kidsoft:#EEF5E9;
+  --up:#D6453D;--down:#1E9E62;--warn:#C98A2E;
+  --accent:#1E5F6E;--accentsoft:#EAF3F5;--accent2:#2E8FA8;
+  --r:16px;--shadow:0 1px 2px rgba(20,32,26,.04),0 10px 28px rgba(20,32,26,.06);
+}
+body.module-seedling{--accent:#4C8B47;--accentsoft:#EEF5E9;--accent2:#7BB661}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:var(--accent2);text-decoration:none}
+
+/* ============ 顶部 ============ */
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);padding:12px 22px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;min-width:150px}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(140deg,#1E5F6E,#4C8B47);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;letter-spacing:.5px}
+.brand-name{font-size:16px;font-weight:650;letter-spacing:.2px;line-height:1.2}
+.brand-sub{font-size:11.5px;color:var(--ink3);letter-spacing:.3px}
+.modules{display:flex;gap:8px;padding:4px;background:#F0F2EE;border-radius:14px;margin-left:auto}
+.module-btn{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 12px;border-radius:11px;transition:.22s;color:var(--ink2);text-align:left}
+.module-btn svg{width:20px;height:20px;flex:none}
+.module-btn b{display:block;font-size:14px;font-weight:600;line-height:1.25}
+.module-btn i{display:block;font-size:10.5px;font-style:normal;color:var(--ink3);letter-spacing:.2px}
+.module-btn.active{background:#fff;box-shadow:0 2px 8px rgba(20,32,26,.09);color:var(--ink)}
+.module-btn.active[data-module="finance"]{color:var(--fin)}
+.module-btn.active[data-module="seedling"]{color:var(--kid)}
+.module-btn.active[data-module="finance"] svg{color:var(--fin)}
+.module-btn.active[data-module="seedling"] svg{color:var(--kid)}
+
+/* ============ 布局 ============ */
+.shell{display:flex;align-items:flex-start;max-width:1440px;margin:0 auto;padding:22px;gap:22px}
+.sidebar{width:186px;flex:none;position:sticky;top:92px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:14px 10px;box-shadow:var(--shadow)}
+.side-mod{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent);font-weight:700;padding:2px 10px 10px}
+#subnav{display:flex;flex-direction:column;gap:1px}
+.side-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border-radius:10px;color:var(--ink2);
+  font-size:13.5px;transition:.18s;text-align:left;line-height:1.3}
+.side-item:hover{background:#F7F8F5;color:var(--ink)}
+.side-item.active{background:var(--accentsoft);color:var(--accent);font-weight:600}
+.side-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.45;flex:none}
+.side-item.active .side-dot{opacity:1}
+.side-foot{margin-top:12px;padding:10px 10px 2px;border-top:1px dashed var(--line);font-size:10.5px;color:var(--ink3);line-height:1.5}
+.content{flex:1;min-width:0}
+.panel{display:none;animation:fade .28s ease}.noanim .panel.active{animation:none}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ============ 通用卡片 ============ */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+.panel-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.panel-head h2{margin:0;font-size:21px;font-weight:650;letter-spacing:.2px}
+.panel-head p{margin:2px 0 0;font-size:12.5px;color:var(--ink3)}
+.head-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:10px;font-size:13px;
+  font-weight:550;transition:.18s;border:1px solid transparent;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-ghost{background:#fff;border-color:var(--line);color:var(--ink2)}
+.btn-ghost:hover{background:#F7F8F5;color:var(--ink)}
+.btn-sm{padding:5px 11px;font-size:12px;border-radius:8px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:550;
+  background:var(--accentsoft);color:var(--accent);white-space:nowrap}
+.chip-grey{background:#F1F3EF;color:var(--ink2)}
+.chip-up{background:#FCEDEB;color:var(--up)}
+.chip-down{background:#E9F6EE;color:var(--down)}
+.chip-warn{background:#FBF2E2;color:var(--warn)}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.split-a{grid-template-columns:1.15fr .85fr}
+.split-b{grid-template-columns:1.1fr .9fr}
+.sec-title{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:650;margin:0 0 12px;color:var(--ink)}
+.sec-title span.sub{font-weight:400;font-size:11.5px;color:var(--ink3)}
+.mt{margin-top:16px}
+
+/* KPI */
+.kpi{position:relative;overflow:hidden}
+.kpi .k-label{font-size:12px;color:var(--ink3);letter-spacing:.2px;display:flex;align-items:center;gap:6px}
+.kpi .k-val{font-size:25px;font-weight:680;letter-spacing:-.4px;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi .k-val.sm{font-size:20px}
+.kpi .k-sub{font-size:11.5px;color:var(--ink3);margin-top:5px}
+.kpi .k-bar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:.85}
+.num-up{color:var(--up)}.num-down{color:var(--down)}
+
+/* 表单 */
+.form-wrap{overflow:hidden;max-height:0;transition:max-height .3s ease,opacity .22s ease,margin .25s;opacity:0;margin-bottom:0}
+.form-wrap.open{max-height:760px;opacity:1;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px;background:#FAFBF8;
+  border:1px solid var(--line);border-radius:12px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field span{font-size:11.5px;color:var(--ink2);font-weight:550;letter-spacing:.2px}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;
+  outline:none;transition:.16s;width:100%;font-size:13px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accentsoft)}
+.field textarea{resize:vertical;min-height:64px;line-height:1.5}
+.field-wide{grid-column:span 3}
+.form-actions{grid-column:span 3;display:flex;gap:8px;align-items:center}
+.form-hint{font-size:11px;color:var(--ink3);margin-left:4px}
+
+/* 空状态 */
+.empty{padding:34px 16px;text-align:center;color:var(--ink3);font-size:12.5px}
+.empty b{display:block;color:var(--ink2);font-size:13.5px;margin-bottom:5px;font-weight:600}
+.empty .ic{font-size:22px;opacity:.35;display:block;margin-bottom:8px}
+
+/* 列表/表格 */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:.5px;text-transform:uppercase;
+  padding:0 10px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:11px 10px;border-bottom:1px solid #F2F4F0;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.r,.tbl th.r{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .tname{font-weight:600}
+.tbl .tsub{font-size:11px;color:var(--ink3);margin-top:1px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* 账户卡 */
+.acct{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:14px;border:1px solid var(--line);
+  background:#fff;transition:.2s;position:relative;overflow:hidden}
+.acct:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(20,32,26,.08)}
+.acct .a-top{display:flex;align-items:center;gap:8px}
+.acct .a-name{font-weight:620;font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct .a-bal{font-size:21px;font-weight:680;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.acct .a-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);flex-wrap:wrap}
+.acct.neg .a-bal{color:var(--up)}
+.a-stripe{position:absolute;left:0;top:0;bottom:0;width:3px}
+
+/* 分布条 */
+.dist{display:flex;height:12px;border-radius:8px;overflow:hidden;background:#F0F2EE;gap:2px}
+.dist i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px}
+.legend li{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink2);list-style:none}
+.legend .dot{width:9px;height:9px;border-radius:3px;flex:none}
+.legend b{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600}
+.legend ul{margin:0;padding:0}
+
+/* 复盘 */
+.frame{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.frame-i{padding:12px 13px;border-radius:11px;background:#FAFBF8;border:1px solid var(--line)}
+.frame-i b{display:block;font-size:12.5px;margin-bottom:3px;color:var(--accent)}
+.frame-i i{font-style:normal;font-size:11.5px;color:var(--ink2);line-height:1.5;display:block}
+.frame-i .no{font-size:10px;color:var(--ink3);letter-spacing:1px;display:block;margin-bottom:5px}
+.mood-scale{display:flex;gap:6px;align-items:flex-end;height:56px;margin-top:6px}
+.mood-scale .m{flex:1;border-radius:5px 5px 3px 3px;background:var(--accentsoft);position:relative;min-height:8px}
+.mood-scale .m.on{background:var(--accent)}
+.review{padding:16px;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;background:#fff}
+.review .r-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.review .r-date{font-weight:650;font-size:14px}
+.review .r-idx{display:flex;gap:18px;margin:12px 0;flex-wrap:wrap}
+.review .r-idx div{min-width:74px}
+.review .r-idx label{display:block;font-size:10.5px;color:var(--ink3);letter-spacing:.3px}
+.review .r-idx b{font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.review .r-box{margin-top:10px;font-size:12.5px;line-height:1.65;color:var(--ink2)}
+.review .r-box em{font-style:normal;color:var(--ink3);font-size:11px;display:block;margin-bottom:2px;letter-spacing:.3px}
+
+/* 时间轴 */
+.tl{position:relative;padding-left:22px}
+.tl:before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:linear-gradient(#DCE6D8,#EFF1EC);border-radius:2px}
+.tl-i{position:relative;padding:0 0 20px}
+.tl-i:before{content:"";position:absolute;left:-22px;top:5px;width:9px;height:9px;border-radius:50%;background:#fff;
+  border:2px solid var(--accent)}
+.tl-i .tl-date{font-size:11.5px;color:var(--ink3);letter-spacing:.3px}
+.tl-i .tl-body{margin-top:4px;font-size:13px;line-height:1.6;color:var(--ink2)}
+.tl-i .tl-body b{color:var(--ink);font-weight:600}
+
+/* 小树苗 */
+.kid-hero{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.kid-avatar{width:64px;height:64px;border-radius:22px;background:linear-gradient(150deg,#B7DCA4,#7BB661);
+  display:flex;align-items:center;justify-content:center;font-size:28px;flex:none;box-shadow:0 6px 18px rgba(123,182,97,.3)}
+.kid-name{font-size:19px;font-weight:650;border:none;background:transparent;padding:2px 4px;border-radius:7px;
+  width:auto;max-width:200px;outline:none;border-bottom:1px dashed transparent}
+.kid-name:hover{border-bottom-color:var(--line)}
+.kid-name:focus{border-bottom-color:var(--kid2);background:#FAFCF8}
+.kid-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:5px;font-size:12px;color:var(--ink2)}
+.dim-group{margin-bottom:18px}
+.dim-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.dim-head b{font-size:13.5px;font-weight:650}
+.dim-head .cnt{font-size:11px;color:var(--ink3)}
+.plan{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;
+  margin-bottom:7px;background:#fff;transition:.18s}
+.plan:hover{border-color:#D8E4D2;background:#FCFDFB}
+.plan .p-main{flex:1;min-width:0}
+.plan .p-name{font-size:13px;font-weight:600;line-height:1.4}
+.plan .p-meta{font-size:11px;color:var(--ink3);margin-top:3px;display:flex;gap:9px;flex-wrap:wrap}
+.plan .p-act{display:flex;gap:5px;flex:none}
+.status-btn{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:550;border:1px solid var(--line);background:#fff;color:var(--ink3)}
+.status-btn.s1{background:#FBF7EC;color:#A8802F;border-color:#F0E4C6}
+.status-btn.s2{background:#EDF5E9;color:var(--kid);border-color:#D9E9CF}
+.status-btn.s3{background:#F1F3EF;color:var(--ink3);border-color:var(--line);text-decoration:line-through}
+.tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.tip{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.tip-h{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none}
+.tip-h .tip-ico{width:30px;height:30px;border-radius:9px;background:var(--kidsoft);display:flex;align-items:center;
+  justify-content:center;font-size:15px;flex:none}
+.tip-h b{font-size:13.5px;font-weight:650;flex:1}
+.tip-h .arw{color:var(--ink3);font-size:11px;transition:.2s}
+.tip.open .arw{transform:rotate(90deg)}
+.tip-b{max-height:0;overflow:hidden;transition:max-height .32s ease;background:#FCFDFA}
+.tip.open .tip-b{max-height:900px}
+.tip-in{padding:0 16px 16px}
+.age-block{margin-top:11px}
+.age-block label{display:inline-block;font-size:10.5px;font-weight:600;color:var(--kid);background:var(--kidsoft);
+  padding:1px 8px;border-radius:20px;margin-bottom:5px;letter-spacing:.3px}
+.age-block ul{margin:0;padding-left:17px}
+.age-block li{font-size:12.5px;line-height:1.7;color:var(--ink2);margin-bottom:2px}
+.age-block li b{color:var(--ink);font-weight:600}
+
+/* 曲线 */
+.chart-box{position:relative;width:100%}
+.chart-legend{display:flex;gap:14px;font-size:11.5px;color:var(--ink3);margin-bottom:6px;flex-wrap:wrap}
+.chart-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);background:#1B231F;color:#fff;
+  padding:10px 20px;border-radius:11px;font-size:13px;opacity:0;pointer-events:none;transition:.28s;z-index:99;
+  box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:1080px){.g4{grid-template-columns:repeat(2,1fr)}.frame{grid-template-columns:repeat(2,1fr)}.tips-grid{grid-template-columns:1fr}}
+@media(max-width:860px){
+  .shell{flex-direction:column;padding:14px;gap:14px}
+  .sidebar{width:100%;position:static;display:flex;gap:6px;overflow-x:auto;padding:8px;border-radius:13px}
+  #subnav{flex-direction:row;gap:6px}
+  .side-mod,.side-foot{display:none}
+  .side-item{white-space:nowrap;padding:7px 13px;font-size:13px;width:auto}
+  .side-dot{display:none}
+  .topbar{padding:10px 14px;gap:12px}
+  .modules{width:100%;margin-left:0}
+  .module-btn{flex:1;padding:8px 10px}
+  .module-btn i{display:none}
+  .g4,.g3,.g2{grid-template-columns:1fr 1fr}
+  .split-a,.split-b{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr 1fr}
+  .field-wide{grid-column:span 2}
+  .panel-head h2{font-size:19px}
+  .frame{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .g4,.g3,.g2,.form-grid{grid-template-columns:1fr}
+  .field-wide{grid-column:span 1}
+  .form-actions{grid-column:span 1}
+  .kpi .k-val{font-size:22px}
+}
+</style>
+</head>
+<body class="module-finance">
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">家</div>
+    <div>
+      <div class="brand-name">家庭工作台</div>
+      <div class="brand-sub" id="topDate">&nbsp;</div>
+    </div>
+  </div>
+  <nav class="modules">
+    <button class="module-btn active" data-module="finance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19V9m5 10V5m5 14v-7m5 7V8"/><path d="M2.5 21.5h19"/></svg>
+      <span><b>财务分析</b><i>家庭资产 · 投资复盘</i></span>
+    </button>
+    <button class="module-btn" data-module="seedling">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-4 3-7 8-7 0 5-3 8-8 8z"/><path d="M12 15c0-3.5-2.6-6-7-6 0 4.3 2.6 6.6 7 6.6"/></svg>
+      <span><b>小树苗</b><i>1-6 岁女娃培育</i></span>
+    </button>
+  </nav>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-mod" id="sideMod">财务分析</div>
+    <nav id="subnav"></nav>
+    <div class="side-foot">数据实时保存在你的资料库数据表中，换设备登录同样可见。</div>
+  </aside>
+
+  <main class="content" id="content">
+
+    <!-- ================= 财务 · 总览 ================= -->
+    <section class="panel active" id="fin-overview">
+      <div class="panel-head">
+        <div>
+          <h2>家庭财务总览</h2>
+          <p>账户、流水、持仓三张表自动汇总，本月数据随时刷新</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-ghost btn-sm" data-goto="fin-accounts">管理账户</button>
+          <button class="btn btn-primary btn-sm" data-goto="fin-flows" data-open="flow">记一笔</button>
+        </div>
+      </div>
+
+      <div class="grid g4">
+        <div class="card kpi"><i class="k-bar"></i>
+          <div class="k-label">家庭净资产</div>
+          <div class="k-val" id="kpiNet" data-sp-bindable="database" data-sp-database-id="Bx277AjKMTsAnr9xS5evm1">¥0.00</div>
+          <div class="k-sub" id="kpiNetSub">资产 − 负债</div>
+        </div>
+        <div class="card kpi"><i class="k-bar" style="background:#2E8FA8"></i>
+          <div class="k-label">投资市值</div>
+          <div class="k-val" id="kpiHold" data-sp-bindable="database" data-sp-database-id="mn9AA3RrDjtqoLGvH7BoYx">¥0.00</div>
+          <div class="k-sub" id="kpiHoldSub">累计盈亏 —</div>
+        </div>
+        <div class="card kpi"><i class="k-bar" style="background:#1E9E62"></i>
+          <div class="k-label">本月收入</div>
+          <div class="k-val num-down" id="kpiIn" data-sp-bindable="database" data-sp-database-id="81fOiGR9TGvLWuWvn6aqcA">¥0.00</div>
+          <div class="k-sub" id="kpiInSub">— 笔进账</div>
+        </div>
+        <div class="card kpi"><i class="k-bar" style="background:#D6453D"></i>
+          <div class="k-label">本月支出 / 结余</div>
+          <div class="k-val num-up" id="kpiOut" data-sp-bindable="database" data-sp-database-id="81fOiGR9TGvLWuWvn6aqcA">¥0.00</div>
+          <div class="k-sub" id="kpiOutSub">结余率 —</div>
+        </div>
+      </div>
+
+      <div class="grid g2 split-a mt">
+        <div class="card">
+          <div class="sec-title">资产分布 <span class="sub">按账户类型</span></div>
+          <div class="dist" id="assetDist"></div>
+          <ul class="legend" id="assetLegend"></ul>
+        </div>
+        <div class="card">
+          <div class="sec-title">最新大盘复盘 <span class="sub" id="lastReviewDate"></span></div>
+          <div id="lastReview"></div>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <div class="sec-title">最近流水 <span class="sub">最新 6 条</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto" data-goto="fin-flows">查看全部</button>
+        </div>
+        <div class="scroll-x"><table class="tbl" id="recentFlowTbl">
+          <thead><tr><th>日期</th><th>分类</th><th>账户</th><th class="r">金额</th></tr></thead>
+          <tbody></tbody></table></div>
+        <div class="empty" id="recentFlowEmpty"><span class="ic">·</span><b>还没有流水记录</b>点右上角「记一笔」开始记账</div>
+      </div>
+    </section>
+
+    <!-- ================= 财务 · 账户资产 ================= -->
+    <section class="panel" id="fin-accounts">
+      <div class="panel-head">
+        <div><h2>账户资产</h2><p>银行、支付宝、证券账户统一管理，负债记为负数</p></div>
+        <div class="head-actions">
+          <span class="chip" id="acctTotalChip">合计 ¥0.00</span>
+          <button class="btn btn-primary btn-sm" data-toggle="acct">+ 新增账户</button>
+        </div>
+      </div>
+      <div class="form-wrap" id="wrap-acct">
+        <form class="form-grid" data-form="acct">
+          <label class="field"><span>账户名称</span><input name="acct_name" type="text" required placeholder="如 招商银行工资卡"></label>
+          <label class="field"><span>账户类型</span><select name="acct_type" required><option value="">请选择</option></select></label>
+          <label class="field"><span>当前余额（元）</span><input name="acct_balance" type="number" step="0.01" required placeholder="0.00"></label>
+          <label class="field"><span>归属</span><select name="acct_owner"><option value="">请选择</option></select></label>
+          <label class="field"><span>更新时间</span><input name="acct_date" type="date"></label>
+          <label class="field"><span>备注</span><input name="acct_note" type="text" placeholder="选填"></label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" type="submit">保存账户</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-toggle="acct">取消</button>
+          </div>
+        </form>
+      </div>
+      <div id="acctList" class="grid g3"></div>
+      <div class="empty" id="acctEmpty" style="display:none"><span class="ic">·</span><b>还没有账户</b>把银行卡、支付宝、证券账户加进来，总览会自动汇总</div>
+      <div class="card mt" id="acctDistCard" style="display:none">
+        <div class="sec-title">类型分布</div>
+        <div class="dist" id="acctDist"></div>
+        <ul class="legend" id="acctLegend"></ul>
+      </div>
+    </section>
+
+    <!-- ================= 财务 · 收支流水 ================= -->
+    <section class="panel" id="fin-flows">
+      <div class="panel-head">
+        <div><h2>收支流水</h2><p>随手记账，月末自动算出结余率</p></div>
+        <div class="head-actions">
+          <button class="btn btn-primary btn-sm" data-toggle="flow">+ 记一笔</button>
+        </div>
+      </div>
+      <div class="form-wrap" id="wrap-flow">
+        <form class="form-grid" data-form="flow">
+          <label class="field"><span>日期</span><input name="flow_date" type="date" required></label>
+          <label class="field"><span>收支类型</span><select name="flow_type" required><option value="">请选择</option></select></label>
+          <label class="field"><span>分类</span><select name="flow_cat"><option value="">请选择</option></select></label>
+          <label class="field"><span>金额（元）</span><input name="flow_amount" type="number" step="0.01" required placeholder="0.00"></label>
+          <label class="field"><span>账户</span><input name="flow_acct" type="text" placeholder="如 支付宝"></label>
+          <label class="field"><span>备注</span><input name="flow_note" type="text" placeholder="选填"></label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" type="submit">保存</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-toggle="flow">取消</button>
+          </div>
+        </form>
+      </div>
+      <div class="grid g3" style="margin-bottom:14px">
+        <div class="card kpi"><div class="k-label">本月收入</div><div class="k-val sm num-down" id="flowIn" data-sp-bindable="database" data-sp-database-id="81fOiGR9TGvLWuWvn6aqcA">¥0.00</div></div>
+        <div class="card kpi"><div class="k-label">本月支出</div><div class="k-val sm num-up" id="flowOut" data-sp-bindable="database" data-sp-database-id="81fOiGR9TGvLWuWvn6aqcA">¥0.00</div></div>
+        <div class="card kpi"><div class="k-label">本月结余</div><div class="k-val sm" id="flowNet" data-sp-bindable="database" data-sp-database-id="81fOiGR9TGvLWuWvn6aqcA">¥0.00</div></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">流水明细
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm f-filter active" data-filter="all">全部</button>
+            <button class="btn btn-ghost btn-sm f-filter" data-filter="收入">收入</button>
+            <button class="btn btn-ghost btn-sm f-filter" data-filter="支出">支出</button>
+          </span>
+        </div>
+        <div class="scroll-x"><table class="tbl" id="flowTbl">
+          <thead><tr><th>日期</th><th>分类</th><th>账户 / 备注</th><th class="r">金额</th></tr></thead>
+          <tbody></tbody></table></div>
+        <div class="empty" id="flowEmpty"><span class="ic">·</span><b>这个月还没有记录</b>记账是理财的第一步，从一笔日常开销开始</div>
+      </div>
+    </section>
+
+    <!-- ================= 财务 · 投资持仓 ================= -->
+    <section class="panel" id="fin-holdings">
+      <div class="panel-head">
+        <div><h2>投资持仓</h2><p>股票、ETF、支付宝基金统一算盈亏（红涨绿跌）</p></div>
+        <div class="head-actions"><button class="btn btn-primary btn-sm" data-toggle="hold">+ 新增持仓</button></div>
+      </div>
+      <div class="form-wrap" id="wrap-hold">
+        <form class="form-grid" data-form="hold">
+          <label class="field"><span>标的名称</span><input name="hold_name" type="text" required placeholder="如 贵州茅台 / 沪深300ETF"></label>
+          <label class="field"><span>标的类型</span><select name="hold_type" required><option value="">请选择</option></select></label>
+          <label class="field"><span>持仓数量</span><input name="hold_qty" type="number" step="0.01" required placeholder="0"></label>
+          <label class="field"><span>成本价</span><input name="hold_cost" type="number" step="0.001" required placeholder="0.000"></label>
+          <label class="field"><span>现价</span><input name="hold_price" type="number" step="0.001" required placeholder="0.000"></label>
+          <label class="field"><span>备注</span><input name="hold_note" type="text" placeholder="选填"></label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" type="submit">保存持仓</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-toggle="hold">取消</button>
+          </div>
+        </form>
+      </div>
+      <div class="grid g4" style="margin-bottom:14px">
+        <div class="card kpi"><div class="k-label">总市值</div><div class="k-val sm" id="holdMv" data-sp-bindable="database" data-sp-database-id="mn9AA3RrDjtqoLGvH7BoYx">¥0.00</div></div>
+        <div class="card kpi"><div class="k-label">总成本</div><div class="k-val sm" id="holdCost" data-sp-bindable="database" data-sp-database-id="mn9AA3RrDjtqoLGvH7BoYx">¥0.00</div></div>
+        <div class="card kpi"><div class="k-label">累计盈亏</div><div class="k-val sm" id="holdPnl" data-sp-bindable="database" data-sp-database-id="mn9AA3RrDjtqoLGvH7BoYx">¥0.00</div></div>
+        <div class="card kpi"><div class="k-label">盈亏率</div><div class="k-val sm" id="holdPnlPct" data-sp-bindable="database" data-sp-database-id="mn9AA3RrDjtqoLGvH7BoYx">—</div></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">持仓明细 <span class="sub">现价需手动更新，页面不接实时行情</span></div>
+        <div class="scroll-x"><table class="tbl" id="holdTbl">
+          <thead><tr><th>标的</th><th>类型</th><th class="r">数量</th><th class="r">成本价</th><th class="r">现价</th><th class="r">市值</th><th class="r">盈亏</th><th class="r">收益率</th></tr></thead>
+          <tbody></tbody></table></div>
+        <div class="empty" id="holdEmpty"><span class="ic">·</span><b>还没有持仓</b>添加你的股票或基金，自动计算市值与盈亏</div>
+      </div>
+      <div class="card mt" id="holdDistCard" style="display:none">
+        <div class="sec-title">持仓结构 <span class="sub">按标的类型</span></div>
+        <div class="dist" id="holdDist"></div>
+        <ul class="legend" id="holdLegend"></ul>
+      </div>
+    </section>
+
+    <!-- ================= 财务 · 大盘复盘 ================= -->
+    <section class="panel" id="fin-market">
+      <div class="panel-head">
+        <div><h2>大盘复盘</h2><p>按六个维度固定流程复盘，把感觉变成可对比的记录</p></div>
+        <div class="head-actions"><button class="btn btn-primary btn-sm" data-toggle="review">+ 写今日复盘</button></div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="sec-title">复盘六步框架 <span class="sub">每天收盘后 10 分钟走一遍</span></div>
+        <div class="frame">
+          <div class="frame-i"><span class="no">01</span><b>指数结构</b><i>上证 / 创业板收盘与涨跌幅，位置在趋势的哪一段：加速、滞涨还是破位</i></div>
+          <div class="frame-i"><span class="no">02</span><b>量能水位</b><i>两市成交额对比近 5 日均值，放量还是缩量，量价是否背离</i></div>
+          <div class="frame-i"><span class="no">03</span><b>情绪温度</b><i>冰点→低迷→震荡→回暖→亢奋，标出当天处在情绪周期的哪一格</i></div>
+          <div class="frame-i"><span class="no">04</span><b>主线题材</b><i>当天最强的 1-2 个方向，是否有资金持续做，还是单日轮动</i></div>
+          <div class="frame-i"><span class="no">05</span><b>赚钱效应</b><i>涨跌家数、连板高度、跌停数量，决定该进攻还是防守</i></div>
+          <div class="frame-i"><span class="no">06</span><b>次日计划</b><i>买卖点写死：什么价位加，什么价位减，破位走人，不临场改主意</i></div>
+        </div>
+      </div>
+
+      <div class="form-wrap" id="wrap-review">
+        <form class="form-grid" data-form="review">
+          <label class="field"><span>复盘日期</span><input name="rev_date" type="date" required></label>
+          <label class="field"><span>上证收盘</span><input name="rev_sh" type="number" step="0.01" placeholder="如 3120.45"></label>
+          <label class="field"><span>上证涨跌幅（%）</span><input name="rev_sh_pct" type="number" step="0.01" placeholder="如 -0.85"></label>
+          <label class="field"><span>创业板涨跌幅（%）</span><input name="rev_cyb_pct" type="number" step="0.01" placeholder="如 1.32"></label>
+          <label class="field"><span>两市成交额（亿）</span><input name="rev_amount" type="number" step="1" placeholder="如 8600"></label>
+          <label class="field"><span>市场情绪</span><select name="rev_mood"><option value="">请选择</option></select></label>
+          <label class="field field-wide"><span>主线板块 / 最强方向</span><input name="rev_sector" type="text" placeholder="如 半导体、汽车零部件，资金是否连续"></label>
+          <label class="field field-wide"><span>明日计划</span><input name="rev_plan" type="text" placeholder="如 指数站上 5 日线加仓 ETF，破 3050 减仓"></label>
+          <label class="field field-wide"><span>复盘笔记</span><textarea name="rev_note" placeholder="今天做对了什么、做错了什么、情绪有没有影响操作"></textarea></label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" type="submit">保存复盘</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-toggle="review">取消</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="sec-title">情绪温度带 <span class="sub">最近 12 次复盘</span></div>
+        <div class="mood-scale" id="moodScale"></div>
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink3);margin-top:6px">
+          <span>冰点</span><span>低迷</span><span>震荡</span><span>回暖</span><span>亢奋</span>
+        </div>
+      </div>
+
+      <div id="reviewList"></div>
+      <div class="empty" id="reviewEmpty"><span class="ic">·</span><b>还没有复盘记录</b>今天收盘后花 10 分钟填一次，一个月后回看会很有价值</div>
+    </section>
+
+    <!-- ================= 小树苗 · 总览 ================= -->
+    <section class="panel" id="kid-overview">
+      <div class="panel-head">
+        <div><h2>小树苗 · 成长总览</h2><p>1-6 岁是大脑发育黄金期，把关键指标和培育重点放在一页里</p></div>
+        <div class="head-actions">
+          <button class="btn btn-ghost btn-sm" data-goto="kid-growth" data-open="grow">+ 记成长</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="kid-hero">
+          <div class="kid-avatar">🌱</div>
+          <div style="flex:1;min-width:200px">
+            <input class="kid-name" id="kidName" value="小树苗" aria-label="宝宝昵称">
+            <div class="kid-meta">
+              <span class="chip" id="kidAge">填写生日后自动算年龄</span>
+              <span id="kidBirthWrap" style="display:flex;align-items:center;gap:6px">
+                生日 <input type="date" id="kidBirth" data-keep="1" style="border:1px solid var(--line);border-radius:8px;padding:3px 7px;font-size:12px;background:#fff">
+              </span>
+            </div>
+          </div>
+          <div style="display:flex;gap:22px;flex-wrap:wrap">
+            <div><div style="font-size:11px;color:var(--ink3)">最新身高</div><div style="font-size:20px;font-weight:680" id="kidHeight">—</div></div>
+            <div><div style="font-size:11px;color:var(--ink3)">最新体重</div><div style="font-size:20px;font-weight:680" id="kidWeight">—</div></div>
+            <div><div style="font-size:11px;color:var(--ink3)">本月新记录</div><div style="font-size:20px;font-weight:680" id="kidMilestone">0</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid g2 split-b">
+        <div class="card">
+          <div class="sec-title">身高曲线 <span class="sub">按记录日期</span></div>
+          <div class="chart-box" id="heightChart"></div>
+        </div>
+        <div class="card">
+          <div class="sec-title">本周培育重点 <span class="sub">进行中的计划</span></div>
+          <div id="focusPlans"></div>
+        </div>
+      </div>
+      <div class="card mt">
+        <div class="sec-title">最近成长记录 <span class="sub">最新 5 条</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto" data-goto="kid-log">查看全部</button>
+        </div>
+        <div class="tl" id="recentGrowth"></div>
+        <div class="empty" id="recentGrowthEmpty"><span class="ic">·</span><b>还没有记录</b>第一次翻身、第一句话，都值得留下来</div>
+      </div>
+    </section>
+
+    <!-- ================= 小树苗 · 生长发育 ================= -->
+    <section class="panel" id="kid-growth">
+      <div class="panel-head">
+        <div><h2>生长发育</h2><p>身高体重与里程碑，用数据看成长节奏</p></div>
+        <div class="head-actions"><button class="btn btn-primary btn-sm" data-toggle="grow">+ 新增记录</button></div>
+      </div>
+      <div class="form-wrap" id="wrap-grow">
+        <form class="form-grid" data-form="grow">
+          <label class="field"><span>记录日期</span><input name="grow_date" type="date" required></label>
+          <label class="field"><span>月龄（月）</span><input name="grow_month" type="number" step="1" placeholder="如 36"></label>
+          <label class="field"><span>里程碑类型</span><select name="grow_type"><option value="">请选择</option></select></label>
+          <label class="field"><span>身高（cm）</span><input name="grow_height" type="number" step="0.1" placeholder="如 98.5"></label>
+          <label class="field"><span>体重（kg）</span><input name="grow_weight" type="number" step="0.01" placeholder="如 15.2"></label>
+          <label class="field"><span>一句话记录</span><input name="grow_content" type="text" placeholder="如 能自己扣扣子了"></label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" type="submit">保存</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-toggle="grow">取消</button>
+          </div>
+        </form>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="sec-title">身高曲线（cm）</div><div class="chart-box" id="growthChartH"></div></div>
+        <div class="card"><div class="sec-title">体重曲线（kg）</div><div class="chart-box" id="growthChartW"></div></div>
+      </div>
+      <div class="card mt">
+        <div class="sec-title">里程碑分布 <span class="sub">按类型统计</span></div>
+        <div id="milestoneDist"></div>
+        <div class="empty" id="milestoneEmpty" style="padding:18px">还没有里程碑数据</div>
+      </div>
+    </section>
+
+    <!-- ================= 小树苗 · 培育计划 ================= -->
+    <section class="panel" id="kid-plans">
+      <div class="panel-head">
+        <div><h2>培育计划</h2><p>八个维度分龄设计，边做边标记状态</p></div>
+        <div class="head-actions">
+          <select id="planFilter" class="btn btn-ghost btn-sm" style="padding-right:26px">
+            <option value="all">全部状态</option><option value="待开始">待开始</option>
+            <option value="进行中">进行中</option><option value="已达成">已达成</option>
+          </select>
+          <button class="btn btn-primary btn-sm" data-toggle="plan">+ 新增计划</button>
+        </div>
+      </div>
+      <div class="form-wrap" id="wrap-plan">
+        <form class="form-grid" data-form="plan">
+          <label class="field field-wide"><span>计划名称</span><input name="plan_name" type="text" required placeholder="如 每天亲子共读 15 分钟"></label>
+          <label class="field"><span>培育维度</span><select name="plan_dim" required><option value="">请选择</option></select></label>
+          <label class="field"><span>适合年龄</span><select name="plan_age"><option value="">请选择</option></select></label>
+          <label class="field"><span>状态</span><select name="plan_status"><option value="">请选择</option></select></label>
+          <label class="field"><span>执行频率</span><input name="plan_freq" type="text" placeholder="如 每天 / 每周 3 次"></label>
+          <label class="field field-wide"><span>备注</span><input name="plan_note" type="text" placeholder="选填"></label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" type="submit">保存计划</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-toggle="plan">取消</button>
+          </div>
+        </form>
+      </div>
+      <div id="planList"></div>
+      <div class="empty" id="planEmpty"><span class="ic">·</span><b>还没有培育计划</b>先加三条最想坚持的，比如共读、户外、自己吃饭</div>
+    </section>
+
+    <!-- ================= 小树苗 · 成长记录 ================= -->
+    <section class="panel" id="kid-log">
+      <div class="panel-head">
+        <div><h2>成长记录</h2><p>按时间倒序，孩子长大的每一天都算数</p></div>
+        <div class="head-actions"><button class="btn btn-primary btn-sm" data-toggle="grow">+ 新增记录</button></div>
+      </div>
+      <div class="card">
+        <div class="tl" id="growthLog"></div>
+        <div class="empty" id="growthLogEmpty"><span class="ic">·</span><b>还没有成长记录</b>记录今天她做的一件小事，十年后是无价的</div>
+      </div>
+    </section>
+
+    <!-- ================= 小树苗 · 育儿锦囊 ================= -->
+    <section class="panel" id="kid-tips">
+      <div class="panel-head">
+        <div><h2>育儿锦囊</h2><p>按发育维度整理的分龄要点，点击卡片展开</p></div>
+      </div>
+      <div class="tips-grid" id="tipsGrid"></div>
+      <div class="card mt" style="background:linear-gradient(120deg,#FAFCF7,#F4F9F0)">
+        <div class="sec-title" style="margin-bottom:6px">一句话提醒</div>
+        <p style="margin:0;font-size:13px;line-height:1.75;color:var(--ink2)">
+          学龄前的核心不是提前学知识，而是把身体底子、语言环境、情绪安全感和自理习惯打好。
+          每天保证 <b>2 小时户外</b>、<b>15 分钟亲子共读</b>、<b>一次让她自己做决定的小事</b>，比任何课程都更值。
+          发育节奏个体差异很大，曲线看趋势不看单点，明显偏离时找儿保医生而不是对照网帖。
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var DB = {
+    accounts: 'Bx277AjKMTsAnr9xS5evm1',
+    flows: '81fOiGR9TGvLWuWvn6aqcA',
+    holdings: 'mn9AA3RrDjtqoLGvH7BoYx',
+    market: 'quqzw0WyRvgslliQJiOaBb',
+    growth: 'JV8GRWcfqzBoVWq7518BaH',
+    plans: 'bB41KX32VhYdJlQBC6QOMK'
+  };
+  /* ===== 独立部署版：localStorage 数据层（无 WorkBuddy SDK 依赖） ===== */
+  var SCHEMA_LOCAL = {"Bx277AjKMTsAnr9xS5evm1":{"properties":[{"name":"账户名称","type":"text"},{"name":"账户类型","type":"select","config":{"options":[{"text":"银行储蓄","id":"fdMvJga5clY7"},{"text":"支付宝","id":"cqTSHk4ZUjJ6"},{"text":"微信","id":"jPcqoUB9JVKU"},{"text":"股票证券","id":"F4ytjmv0D8FD"},{"text":"基金理财","id":"wwaLRFE2saD0"},{"text":"现金","id":"SQLInRP8jYVI"},{"text":"负债","id":"KohmuMCXhnHi"}]}},{"name":"当前余额","type":"number"},{"name":"归属","type":"select","config":{"options":[{"text":"家庭共用","id":"RJVOlAudvXrc"},{"text":"爸爸","id":"q6vDMliTW6T7"},{"text":"妈妈","id":"26BJEkWY59ma"},{"text":"女儿","id":"2jhz7xgAayh5"}]}},{"name":"更新日期","type":"date"},{"name":"备注","type":"text"}]},"81fOiGR9TGvLWuWvn6aqcA":{"properties":[{"name":"日期","type":"date"},{"name":"收支类型","type":"select","config":{"options":[{"text":"收入","id":"c1k3kcZVCOqP"},{"text":"支出","id":"kOedQ5CUT8K2"}]}},{"name":"分类","type":"select","config":{"options":[{"text":"工资收入","id":"2ylwf6hGyfQ3"},{"text":"投资收益","id":"66voehlnVrkh"},{"text":"其他收入","id":"7YDhETvzGYlh"},{"text":"日常餐饮","id":"Hjd8tmMGn4eb"},{"text":"交通出行","id":"UfNaLqb25Bm9"},{"text":"教育育儿","id":"kW1i6SGNhPnv"},{"text":"医疗健康","id":"np6o6C4BBPJ5"},{"text":"居住房租","id":"ixZiL2uVJkuG"},{"text":"购物消费","id":"2FFvAaoE3Eko"},{"text":"人情往来","id":"PsUHzbLiJjBS"},{"text":"其他支出","id":"v44070Scgt8E"}]}},{"name":"金额","type":"number"},{"name":"账户","type":"text"},{"name":"备注","type":"text"}]},"mn9AA3RrDjtqoLGvH7BoYx":{"properties":[{"name":"标的名称","type":"text"},{"name":"标的类型","type":"select","config":{"options":[{"text":"A股","id":"K9DYXOdyYbgg"},{"text":"ETF基金","id":"j253w02mvnGi"},{"text":"支付宝基金","id":"pvCqLQzTGIEG"},{"text":"银行理财","id":"8Bast2B7MqKt"},{"text":"其他","id":"Q4ZiHE3G1XJC"}]}},{"name":"持仓数量","type":"number"},{"name":"成本价","type":"number"},{"name":"现价","type":"number"},{"name":"备注","type":"text"}]},"quqzw0WyRvgslliQJiOaBb":{"properties":[{"name":"复盘日期","type":"date"},{"name":"上证收盘","type":"number"},{"name":"上证涨跌","type":"number"},{"name":"创业板涨跌","type":"number"},{"name":"两市成交额","type":"number"},{"name":"市场情绪","type":"select","config":{"options":[{"text":"冰点","id":"mRsnbRICdq8X"},{"text":"低迷","id":"n7dmX6lesIUL"},{"text":"震荡","id":"lLDwCOEizlrg"},{"text":"回暖","id":"mmIkh8eni7ZY"},{"text":"亢奋","id":"IeWWhEFHmGVg"}]}},{"name":"主线板块","type":"text"},{"name":"明日计划","type":"text"},{"name":"复盘笔记","type":"text"}]},"JV8GRWcfqzBoVWq7518BaH":{"properties":[{"name":"记录日期","type":"date"},{"name":"月龄","type":"number"},{"name":"身高","type":"number"},{"name":"体重","type":"number"},{"name":"里程碑类型","type":"select","config":{"options":[{"text":"大运动","id":"5wHC4l9ihbJc"},{"text":"精细动作","id":"5RA9thwMiyvJ"},{"text":"语言表达","id":"Oj0WmuPgUaMo"},{"text":"认知启蒙","id":"4QnaXaQAEGl1"},{"text":"社交情绪","id":"zJ3vWUkHpHAw"},{"text":"生活习惯","id":"vI1qvh0RUNzd"}]}},{"name":"记录内容","type":"text"}]},"bB41KX32VhYdJlQBC6QOMK":{"properties":[{"name":"计划名称","type":"text"},{"name":"培育维度","type":"select","config":{"options":[{"text":"营养喂养","id":"DzyP5Vh9V5NR"},{"text":"睡眠作息","id":"90DNbVDm5pU3"},{"text":"运动感统","id":"UILQC0KaOa9n"},{"text":"语言启蒙","id":"dNMETWHyg33m"},{"text":"认知早教","id":"x0PzAvhhIk5i"},{"text":"情绪社交","id":"CfqXb3a94Ej7"},{"text":"习惯养成","id":"jh7T9l1oFSJ2"},{"text":"安全健康","id":"nflih8oNl3Bi"}]}},{"name":"适合年龄","type":"select","config":{"options":[{"text":"1-2岁","id":"OgviE5mxJfDT"},{"text":"2-3岁","id":"0ln2kkd7ol0P"},{"text":"3-4岁","id":"w4wmuqnCLsMe"},{"text":"4-5岁","id":"6LOA9hrGduOd"},{"text":"5-6岁","id":"D15SWktOxO5Z"}]}},{"name":"执行频率","type":"text"},{"name":"状态","type":"select","config":{"options":[{"text":"待开始","id":"ANtDjSunQTcE"},{"text":"进行中","id":"wY1fvvilXvIL"},{"text":"已达成","id":"9IV3xsj7jED2"}]}},{"name":"备注","type":"text"}]}};
+  var OPT_TEXT = {"Bx277AjKMTsAnr9xS5evm1":{"fdMvJga5clY7":"银行储蓄","cqTSHk4ZUjJ6":"支付宝","jPcqoUB9JVKU":"微信","F4ytjmv0D8FD":"股票证券","wwaLRFE2saD0":"基金理财","SQLInRP8jYVI":"现金","KohmuMCXhnHi":"负债","RJVOlAudvXrc":"家庭共用","q6vDMliTW6T7":"爸爸","26BJEkWY59ma":"妈妈","2jhz7xgAayh5":"女儿"},"81fOiGR9TGvLWuWvn6aqcA":{"c1k3kcZVCOqP":"收入","kOedQ5CUT8K2":"支出","2ylwf6hGyfQ3":"工资收入","66voehlnVrkh":"投资收益","7YDhETvzGYlh":"其他收入","Hjd8tmMGn4eb":"日常餐饮","UfNaLqb25Bm9":"交通出行","kW1i6SGNhPnv":"教育育儿","np6o6C4BBPJ5":"医疗健康","ixZiL2uVJkuG":"居住房租","2FFvAaoE3Eko":"购物消费","PsUHzbLiJjBS":"人情往来","v44070Scgt8E":"其他支出"},"mn9AA3RrDjtqoLGvH7BoYx":{"K9DYXOdyYbgg":"A股","j253w02mvnGi":"ETF基金","pvCqLQzTGIEG":"支付宝基金","8Bast2B7MqKt":"银行理财","Q4ZiHE3G1XJC":"其他"},"quqzw0WyRvgslliQJiOaBb":{"mRsnbRICdq8X":"冰点","n7dmX6lesIUL":"低迷","lLDwCOEizlrg":"震荡","mmIkh8eni7ZY":"回暖","IeWWhEFHmGVg":"亢奋"},"JV8GRWcfqzBoVWq7518BaH":{"5wHC4l9ihbJc":"大运动","5RA9thwMiyvJ":"精细动作","Oj0WmuPgUaMo":"语言表达","4QnaXaQAEGl1":"认知启蒙","zJ3vWUkHpHAw":"社交情绪","vI1qvh0RUNzd":"生活习惯"},"bB41KX32VhYdJlQBC6QOMK":{"DzyP5Vh9V5NR":"营养喂养","90DNbVDm5pU3":"睡眠作息","UILQC0KaOa9n":"运动感统","dNMETWHyg33m":"语言启蒙","x0PzAvhhIk5i":"认知早教","CfqXb3a94Ej7":"情绪社交","jh7T9l1oFSJ2":"习惯养成","nflih8oNl3Bi":"安全健康","OgviE5mxJfDT":"1-2岁","0ln2kkd7ol0P":"2-3岁","w4wmuqnCLsMe":"3-4岁","6LOA9hrGduOd":"4-5岁","D15SWktOxO5Z":"5-6岁","ANtDjSunQTcE":"待开始","wY1fvvilXvIL":"进行中","9IV3xsj7jED2":"已达成"}};
+  var SEED_PLANS = [{"_id":"seed0","计划名称":"每天亲子共读 15 分钟","培育维度":"语言启蒙","适合年龄":"1-2岁","执行频率":"每天","状态":"进行中","备注":"固定时间，读她挑的书"},{"_id":"seed1","计划名称":"每天户外活动 2 小时","培育维度":"运动感统","适合年龄":"3-4岁","执行频率":"每天","状态":"进行中","备注":"晒太阳能补维D，也护视力"},{"_id":"seed2","计划名称":"自己用勺子吃饭，不追喂","培育维度":"习惯养成","适合年龄":"1-2岁","执行频率":"每餐","状态":"进行中","备注":"弄脏没关系，先建立自主感"},{"_id":"seed3","计划名称":"固定睡前程序：洗澡-绘本-关灯","培育维度":"睡眠作息","适合年龄":"2-3岁","执行频率":"每天","状态":"进行中","备注":"顺序不变，形成睡眠信号"},{"_id":"seed4","计划名称":"每周 3 次红肉补铁","培育维度":"营养喂养","适合年龄":"1-2岁","执行频率":"每周3次","状态":"待开始","备注":"牛肉、猪肝、瘦肉泥"},{"_id":"seed5","计划名称":"情绪爆发时先命名情绪再给方法","培育维度":"情绪社交","适合年龄":"2-3岁","执行频率":"日常","状态":"待开始","备注":"先共情，再立规则"},{"_id":"seed6","计划名称":"玩 12-24 片拼图与分类游戏","培育维度":"认知早教","适合年龄":"3-4岁","执行频率":"每周3次","状态":"待开始","备注":"不打断专注"},{"_id":"seed7","计划名称":"讲清身体界限与泳衣原则","培育维度":"安全健康","适合年龄":"4-5岁","执行频率":"每月1次","状态":"待开始","备注":"背心裤衩覆盖处不许别人碰"}];
+  var LS_P = 'wb_famwb_';
+  function lsLoad(id) { try { return JSON.parse(localStorage.getItem(LS_P + id) || '[]') || []; } catch (e) { return []; } }
+  function lsSave(id, rows) { try { localStorage.setItem(LS_P + id, JSON.stringify(rows)); } catch (e) {} }
+  function lsNorm(dbId, p) {
+    var o = {}, opts = OPT_TEXT[dbId] || {};
+    Object.keys(p || {}).forEach(function (k) {
+      var v = p[k];
+      if (v && typeof v === 'object' && !Array.isArray(v)) {
+        if ('select' in v) v = v.select;
+        else if ('multi_select' in v) v = v.multi_select;
+        else if ('text' in v) v = v.text;
+        else if ('number' in v) v = v.number;
+        else if ('date' in v) v = v.date;
+      }
+      if (opts[v] !== undefined) v = opts[v];
+      o[k] = v;
+    });
+    return o;
+  }
+  var db = {
+    query: function (p) {
+      var rows = lsLoad(p.databaseId);
+      if (p.databaseId === 'bB41KX32VhYdJlQBC6QOMK' && !rows.length) { rows = SEED_PLANS.slice(); lsSave(p.databaseId, rows); }
+      if (p.sorts && p.sorts.length) {
+        var srt = p.sorts[0], dir = srt.direction === 'ascending' ? 1 : -1;
+        rows = rows.slice().sort(function (a, b) {
+          var av = a[srt.property], bv = b[srt.property];
+          av = (av === undefined || av === null || typeof av === 'object') ? '' : av;
+          bv = (bv === undefined || bv === null || typeof bv === 'object') ? '' : bv;
+          if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+          return String(av).localeCompare(String(bv), 'zh') * dir;
+        });
+      }
+      var start = p.startCursor ? (parseInt(p.startCursor, 10) || 0) : 0;
+      var size = p.pageSize || 200;
+      var page = rows.slice(start, start + size);
+      var next = start + page.length;
+      var more = next < rows.length;
+      return Promise.resolve({ results: page, hasMore: more, nextCursor: more ? String(next) : undefined });
+    },
+    getSchema: function (p) { return Promise.resolve(SCHEMA_LOCAL[p.databaseId] || { properties: [] }); },
+    addRecord: function (p) {
+      var rows = lsLoad(p.databaseId);
+      var rec = lsNorm(p.databaseId, p.properties);
+      rec._id = 'r' + Date.now() + Math.random().toString(36).slice(2, 7);
+      rows.push(rec);
+      lsSave(p.databaseId, rows);
+      return Promise.resolve({ _id: rec._id });
+    },
+    updateRecord: function (p) {
+      var rows = lsLoad(p.databaseId);
+      var patch = lsNorm(p.databaseId, p.properties);
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i]._id === p.recordId) {
+          for (var k in patch) { rows[i][k] = patch[k]; }
+          break;
+        }
+      }
+      lsSave(p.databaseId, rows);
+      return Promise.resolve({ _id: p.recordId });
+    }
+  };
+  /* ===== localStorage 数据层结束 ===== */
+
+  /* 六张数据表的 SDK 调用封装，databaseId 一律硬编码 */
+  var QUERY_FN = {
+    accounts: function (o) { return db.query({ databaseId: 'Bx277AjKMTsAnr9xS5evm1', pageSize: o.pageSize, startCursor: o.startCursor, sorts: o.sorts }); },
+    flows: function (o) { return db.query({ databaseId: '81fOiGR9TGvLWuWvn6aqcA', pageSize: o.pageSize, startCursor: o.startCursor, sorts: o.sorts }); },
+    holdings: function (o) { return db.query({ databaseId: 'mn9AA3RrDjtqoLGvH7BoYx', pageSize: o.pageSize, startCursor: o.startCursor, sorts: o.sorts }); },
+    market: function (o) { return db.query({ databaseId: 'quqzw0WyRvgslliQJiOaBb', pageSize: o.pageSize, startCursor: o.startCursor, sorts: o.sorts }); },
+    growth: function (o) { return db.query({ databaseId: 'JV8GRWcfqzBoVWq7518BaH', pageSize: o.pageSize, startCursor: o.startCursor, sorts: o.sorts }); },
+    plans: function (o) { return db.query({ databaseId: 'bB41KX32VhYdJlQBC6QOMK', pageSize: o.pageSize, startCursor: o.startCursor, sorts: o.sorts }); }
+  };
+  var ADD_FN = {
+    accounts: function (p) { return db.addRecord({ databaseId: 'Bx277AjKMTsAnr9xS5evm1', properties: p }); },
+    flows: function (p) { return db.addRecord({ databaseId: '81fOiGR9TGvLWuWvn6aqcA', properties: p }); },
+    holdings: function (p) { return db.addRecord({ databaseId: 'mn9AA3RrDjtqoLGvH7BoYx', properties: p }); },
+    market: function (p) { return db.addRecord({ databaseId: 'quqzw0WyRvgslliQJiOaBb', properties: p }); },
+    growth: function (p) { return db.addRecord({ databaseId: 'JV8GRWcfqzBoVWq7518BaH', properties: p }); },
+    plans: function (p) { return db.addRecord({ databaseId: 'bB41KX32VhYdJlQBC6QOMK', properties: p }); }
+  };
+  var SCHEMA_FN = {
+    accounts: function () { return db.getSchema({ databaseId: 'Bx277AjKMTsAnr9xS5evm1' }); },
+    flows: function () { return db.getSchema({ databaseId: '81fOiGR9TGvLWuWvn6aqcA' }); },
+    holdings: function () { return db.getSchema({ databaseId: 'mn9AA3RrDjtqoLGvH7BoYx' }); },
+    market: function () { return db.getSchema({ databaseId: 'quqzw0WyRvgslliQJiOaBb' }); },
+    growth: function () { return db.getSchema({ databaseId: 'JV8GRWcfqzBoVWq7518BaH' }); },
+    plans: function () { return db.getSchema({ databaseId: 'bB41KX32VhYdJlQBC6QOMK' }); }
+  };
+  var S = { accounts: [], flows: [], holdings: [], market: [], growth: [], plans: [] };
+  var SCHEMA_OPTIONS = {};
+  var DB_META = {
+    accounts: { sort: '更新日期', dir: 'descending', fields: ['账户名称', '账户类型', '当前余额', '归属', '更新日期', '备注'] },
+    flows: { sort: '日期', dir: 'descending', fields: ['日期', '收支类型', '分类', '金额', '账户', '备注'] },
+    holdings: { sort: '标的名称', dir: 'ascending', fields: ['标的名称', '标的类型', '持仓数量', '成本价', '现价', '备注'] },
+    market: { sort: '复盘日期', dir: 'descending', fields: ['复盘日期', '上证收盘', '上证涨跌', '创业板涨跌', '两市成交额', '市场情绪', '主线板块', '明日计划', '复盘笔记'] },
+    growth: { sort: '记录日期', dir: 'descending', fields: ['记录日期', '月龄', '身高', '体重', '里程碑类型', '记录内容'] },
+    plans: { sort: '计划名称', dir: 'ascending', fields: ['计划名称', '培育维度', '适合年龄', '执行频率', '状态', '备注'] }
+  };
+
+  /* ---------- 工具 ---------- */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    var str = String(v), out = '', ch;
+    for (var i = 0; i < str.length; i++) {
+      ch = str.charAt(i);
+      if (ch === '&') out += '&amp;';
+      else if (ch === '<') out += '&lt;';
+      else if (ch === '>') out += '&gt;';
+      else if (ch === '"') out += '&quot;';
+      else if (ch === "'") out += '&#39;';
+      else out += ch;
+    }
+    return out;
+  }
+  function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  function money(v, dp) {
+    var n = num(v), d = dp === undefined ? 2 : dp;
+    var s = Math.abs(n).toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (n < 0 ? '-¥' : '¥') + s;
+  }
+  function plain(v, dp) { return num(v).toFixed(dp === undefined ? 2 : dp).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function dstr(v) {
+    if (!v) return '—';
+    var s = String(v);
+    return s.length >= 10 ? s.slice(0, 10) : s;
+  }
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  function thisMonth() { return today().slice(0, 7); }
+  function toast(msg) {
+    var t = $('#toast'); if (!t) return;
+    t.textContent = msg; t.className = 'toast show';
+    setTimeout(function () { t.className = 'toast'; }, 2200);
+  }
+  function selText(v) {
+    if (v === null || v === undefined || v === '') return '';
+    if (Object.prototype.toString.call(v) === '[object Array]') return v.map(selText).join('、');
+    if (typeof v === 'object') return v.text || v.name || '';
+    return String(v);
+  }
+
+  /* ---------- 导航 ---------- */
+  var NAV = {
+    finance: { label: '财务分析', items: [
+      { id: 'fin-overview', t: '总览' }, { id: 'fin-accounts', t: '账户资产' },
+      { id: 'fin-flows', t: '收支流水' }, { id: 'fin-holdings', t: '投资持仓' },
+      { id: 'fin-market', t: '大盘复盘' }
+    ] },
+    seedling: { label: '小树苗', items: [
+      { id: 'kid-overview', t: '成长总览' }, { id: 'kid-growth', t: '生长发育' },
+      { id: 'kid-plans', t: '培育计划' }, { id: 'kid-log', t: '成长记录' },
+      { id: 'kid-tips', t: '育儿锦囊' }
+    ] }
+  };
+  var currentModule = 'finance';
+
+  function renderNav(mod) {
+    var box = $('#subnav'); if (!box) return;
+    box.innerHTML = NAV[mod].items.map(function (it) {
+      return '<button class="side-item' + (it.id === NAV[mod].items[0].id ? ' active' : '') +
+        '" data-panel="' + it.id + '"><i class="side-dot"><\x2Fi>' + it.t + '<\x2Fbutton>';
+    }).join('');
+    $('#sideMod').textContent = NAV[mod].label;
+  }
+  function showPanel(id) {
+    $$('.panel').forEach(function (p) { p.classList.toggle('active', p.id === id); });
+    $$('.side-item').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-panel') === id); });
+    var mod = id.indexOf('fin-') === 0 ? 'finance' : 'seedling';
+    if (mod !== currentModule) switchModule(mod, id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function switchModule(mod, panelId) {
+    currentModule = mod;
+    document.body.className = 'module-' + mod;
+    $$('.module-btn').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-module') === mod); });
+    renderNav(mod);
+    showPanelOnly(panelId || NAV[mod].items[0].id);
+  }
+  function showPanelOnly(id) {
+    $$('.panel').forEach(function (p) { p.classList.toggle('active', p.id === id); });
+    $$('.side-item').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-panel') === id); });
+  }
+
+  document.addEventListener('click', function (e) {
+    var m = e.target.closest ? e.target.closest('.module-btn') : null;
+    if (m) { switchModule(m.getAttribute('data-module')); return; }
+    var s = e.target.closest ? e.target.closest('.side-item') : null;
+    if (s) { showPanel(s.getAttribute('data-panel')); return; }
+    var g = e.target.closest ? e.target.closest('[data-goto]') : null;
+    if (g) {
+      var pid = g.getAttribute('data-goto'), open = g.getAttribute('data-open');
+      showPanel(pid);
+      if (open) { var w = $('#wrap-' + open); if (w) w.classList.add('open'); }
+      return;
+    }
+    var t = e.target.closest ? e.target.closest('[data-toggle]') : null;
+    if (t) { var wp = $('#wrap-' + t.getAttribute('data-toggle')); if (wp) wp.classList.toggle('open'); return; }
+  });
+
+  /* ---------- 数据加载 ---------- */
+  function loadAll(key, cb) {
+    var meta = DB_META[key], acc = [], guard = 0;
+    if (!db) { cb([]); return; }
+    (function step(cursor) {
+      if (guard++ > 100) { cb(acc); return; }
+      var params = { pageSize: 200 };
+      if (meta.sort) { params.sorts = [{ property: meta.sort, direction: meta.dir }]; }
+      if (cursor) params.startCursor = cursor;
+      QUERY_FN[key](params).then(function (res) {
+        acc = acc.concat(res.results || []);
+        var next = res.nextCursor;
+        if (res.hasMore && next && next !== cursor && (res.results || []).length) { step(next); }
+        else { cb(acc); }
+      }).catch(function (err) { console.error('[query ' + key + ']', err); cb(acc); });
+    })(undefined);
+  }
+
+  function loadSchemas() {
+    if (!db) return Promise.resolve();
+    var keys = Object.keys(DB);
+    return Promise.all(keys.map(function (k) {
+      return SCHEMA_FN[k]().then(function (schema) {
+        (schema.properties || []).forEach(function (f) {
+          if ((f.type === 'select' || f.type === 'multi_select') && f.config && f.config.options) {
+            SCHEMA_OPTIONS[f.name] = f.config.options;
+          }
+        });
+      }).catch(function (err) { console.error('[schema ' + k + ']', err); });
+    }));
+  }
+
+  function fillSelect(sel, fieldName, keepFirst) {
+    if (!sel) return;
+    var opts = SCHEMA_OPTIONS[fieldName] || [];
+    var html = keepFirst === false ? '' : '<option value="">请选择<\x2Foption>';
+    html += opts.map(function (o) { return '<option value="' + esc(o.id) + '">' + esc(o.text) + '<\x2Foption>'; }).join('');
+    sel.innerHTML = html;
+  }
+  function fillAllSelects() {
+    fillSelect($('[name="acct_type"]'), '账户类型');
+    fillSelect($('[name="acct_owner"]'), '归属');
+    fillSelect($('[name="flow_type"]'), '收支类型');
+    fillSelect($('[name="flow_cat"]'), '分类');
+    fillSelect($('[name="hold_type"]'), '标的类型');
+    fillSelect($('[name="rev_mood"]'), '市场情绪');
+    fillSelect($('[name="grow_type"]'), '里程碑类型');
+    fillSelect($('[name="plan_dim"]'), '培育维度');
+    fillSelect($('[name="plan_age"]'), '适合年龄');
+    fillSelect($('[name="plan_status"]'), '状态');
+  }
+
+  /* ---------- 表单缓存 ---------- */
+  var CACHE_KEY = 'wb_workbench_form_cache_v1';
+  var NO_CACHE_RE = /密码|身份证|secret|token|key/i;
+  function cacheName(form) { return CACHE_KEY + '_' + form.getAttribute('data-form'); }
+  function cacheValues(form) {
+    try {
+      var obj = {};
+      $$('input,select,textarea', form).forEach(function (el) {
+        if (!el.name || el.type === 'submit' || el.type === 'button' || el.type === 'password') return;
+        if (NO_CACHE_RE.test(el.name)) return;
+        obj[el.name] = el.value;
+      });
+      localStorage.setItem(cacheName(form), JSON.stringify(obj));
+    } catch (e) {}
+  }
+  function restoreValues(form) {
+    try {
+      var raw = localStorage.getItem(cacheName(form));
+      if (!raw) return;
+      var obj = JSON.parse(raw) || {};
+      $$('input,select,textarea', form).forEach(function (el) {
+        if (el.name && obj[el.name] !== undefined && el.type !== 'date' && el.type !== 'password') { el.value = obj[el.name]; }
+      });
+    } catch (e) {}
+  }
+  function clearCache(form) {
+    try { localStorage.removeItem(cacheName(form)); } catch (e) {}
+  }
+
+  /* ---------- 提交 ---------- */
+  function val(form, name) { var el = $('[name="' + name + '"]', form); return el ? String(el.value || '').trim() : ''; }
+  function numOrNull(form, name) { var v = val(form, name); return v === '' ? null : parseFloat(v); }
+
+  function submitRecord(key, properties, form, done) {
+    if (!db) { toast('当前环境未连接数据，暂时无法保存'); return; }
+    var btn = $('[type="submit"]', form);
+    if (btn) { btn.disabled = true; btn.textContent = '保存中…'; }
+    ADD_FN[key](properties).then(function () {
+      clearCache(form); form.reset();
+      $$('input[type="date"]', form).forEach(function (el) { if (el.name.indexOf('_date') > -1) el.value = today(); });
+      var wrap = form.parentNode; if (wrap && wrap.className.indexOf('form-wrap') > -1) wrap.classList.remove('open');
+      toast('已保存');
+      loadAll(key, function (rows) { S[key] = rows; if (done) done(); refreshAll(); });
+    }).catch(function (err) {
+      console.error('[addRecord ' + key + ']', err); toast('保存失败，请稍后再试');
+    }).then(function () {
+      if (btn) { btn.disabled = false; btn.textContent = btn.getAttribute('data-label') || '保存'; }
+    });
+  }
+
+  function bindForm(key, formKey, buildProps) {
+    var form = $('[data-form="' + formKey + '"]');
+    if (!form) return;
+    var btn = $('[type="submit"]', form);
+    if (btn) btn.setAttribute('data-label', btn.textContent);
+    form.addEventListener('input', function () { setTimeout(function () { cacheValues(form); }, 300); });
+    form.addEventListener('change', function () { cacheValues(form); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var props = buildProps(form);
+      if (props === null) return;
+      submitRecord(key, props, form, function () { restoreDefaults(); });
+    });
+    restoreValues(form);
+  }
+  function restoreDefaults() {
+    $$('input[type="date"]').forEach(function (el) {
+      if (!el.value && el.getAttribute('data-keep') !== '1') el.value = today();
+    });
+  }
+
+  /* ---------- 财务：渲染 ---------- */
+  var ASSET_COLORS = ['#1E5F6E', '#2E8FA8', '#4FA8A0', '#7BB661', '#C9A227', '#C97B54', '#8A93B8', '#B0B7AE'];
+  var HOLD_COLORS = ['#1E5F6E', '#2E8FA8', '#4FA8A0', '#C9A227', '#8A93B8'];
+
+  function renderAccounts() {
+    var list = $('#acctList'), rows = S.accounts;
+    $('#acctEmpty').style.display = rows.length ? 'none' : 'block';
+    var total = 0;
+    rows.forEach(function (r) {
+      var t = selText(r['账户类型']);
+      total += (t === '负债' ? -Math.abs(num(r['当前余额'])) : num(r['当前余额']));
+    });
+    $('#acctTotalChip').textContent = '合计 ' + money(total);
+    var byType = {}, order = [];
+    rows.forEach(function (r) {
+      var t = selText(r['账户类型']) || '未分类';
+      var v = t === '负债' ? -Math.abs(num(r['当前余额'])) : num(r['当前余额']);
+      if (byType[t] === undefined) { byType[t] = 0; order.push(t); }
+      byType[t] += v;
+    });
+    list.innerHTML = rows.map(function (r, i) {
+      var t = selText(r['账户类型']), neg = t === '负债';
+      var color = ASSET_COLORS[order.indexOf(t) % ASSET_COLORS.length];
+      return '<div class="acct' + (neg ? ' neg' : '') + '">' +
+        '<i class="a-stripe" style="background:' + color + '"><\x2Fi>' +
+        '<div class="a-top"><div class="a-name">' + esc(r['账户名称']) + '<\x2Fdiv>' +
+        '<span class="chip chip-grey">' + esc(t || '未分类') + '<\x2Fspan><\x2Fdiv>' +
+        '<div class="a-bal" ' + bindAttr('Bx277AjKMTsAnr9xS5evm1') + '">' + money(r['当前余额']) + '<\x2Fdiv>' +
+        '<div class="a-meta"><span>' + esc(selText(r['归属']) || '未标注') + '<\x2Fspan><span>·<\x2Fspan><span>' + dstr(r['更新日期']) + '<\x2Fspan>' +
+        (r['备注'] ? '<span>·<\x2Fspan><span>' + esc(r['备注']) + '<\x2Fspan>' : '') + '<\x2Fdiv>' +
+        '<\x2Fdiv>';
+    }).join('');
+    $('#acctDistCard').style.display = rows.length ? 'block' : 'none';
+    var posTotal = 0;
+    order.forEach(function (k) { posTotal += Math.max(byType[k], 0); });
+    $('#acctDist').innerHTML = order.map(function (k, i) {
+      var w = posTotal > 0 ? Math.max(byType[k] / posTotal * 100, 2) : 0;
+      if (byType[k] <= 0) return '';
+      return '<i style="width:' + w.toFixed(1) + '% ;background:' + ASSET_COLORS[i % ASSET_COLORS.length] + '"><\x2Fi>';
+    }).join('');
+    $('#acctLegend').innerHTML = order.map(function (k, i) {
+      var w = posTotal > 0 ? (byType[k] / posTotal * 100) : 0;
+      return '<li><span class="dot" style="background:' + ASSET_COLORS[i % ASSET_COLORS.length] + '"><\x2Fspan>' + esc(k) +
+        ' <b>' + money(byType[k]) + '<\x2Fb> <span style="color:var(--ink3)">' + w.toFixed(0) + '%<\x2Fspan><\x2Fli>';
+    }).join('');
+    // 总览 KPI
+    var assets = 0, debts = 0;
+    rows.forEach(function (r) {
+      var v = num(r['当前余额']);
+      if (selText(r['账户类型']) === '负债') debts += Math.abs(v); else assets += v;
+    });
+    $('#kpiNet').textContent = money(assets - debts);
+    $('#kpiNetSub').textContent = '资产 ' + money(assets) + ' · 负债 ' + money(debts);
+  }
+
+  function renderFlows(filter) {
+    var rows = S.flows.slice();
+    var monthIn = 0, monthOut = 0, m = thisMonth();
+    rows.forEach(function (r) {
+      if (dstr(r['日期']).indexOf(m) === 0) {
+        if (selText(r['收支类型']) === '收入') monthIn += num(r['金额']); else monthOut += num(r['金额']);
+      }
+    });
+    $('#flowIn').textContent = money(monthIn);
+    $('#flowOut').textContent = money(monthOut);
+    $('#flowNet').textContent = money(monthIn - monthOut);
+    $('#kpiIn').textContent = money(monthIn);
+    $('#kpiOut').textContent = money(monthOut);
+    var rate = monthIn > 0 ? ((monthIn - monthOut) / monthIn * 100) : 0;
+    $('#kpiInSub').textContent = rows.filter(function (r) { return dstr(r['日期']).indexOf(m) === 0 && selText(r['收支类型']) === '收入'; }).length + ' 笔进账';
+    $('#kpiOutSub').textContent = '结余率 ' + (monthIn > 0 ? rate.toFixed(0) + '%' : '—');
+
+    var f = filter || 'all';
+    var shown = rows.filter(function (r) { return f === 'all' || selText(r['收支类型']) === f; });
+    var tbody = $('#flowTbl tbody');
+    tbody.innerHTML = shown.map(function (r) {
+      var isIn = selText(r['收支类型']) === '收入';
+      return '<tr><td>' + dstr(r['日期']) + '<\x2Ftd><td><span class="chip ' + (isIn ? 'chip-down' : 'chip-grey') + '">' +
+        esc(selText(r['分类']) || selText(r['收支类型']) || '未分类') + '<\x2Fspan><\x2Ftd><td>' +
+        '<div class="tname" style="font-weight:500">' + esc(r['账户'] || '—') + '<\x2Fdiv>' +
+        (r['备注'] ? '<div class="tsub">' + esc(r['备注']) + '<\x2Fdiv>' : '') + '<\x2Ftd>' +
+        '<td class="r ' + (isIn ? 'num-down' : 'num-up') + '" ' + bindAttr('81fOiGR9TGvLWuWvn6aqcA') + '">' +
+        (isIn ? '+' : '-') + plain(r['金额']) + '<\x2Ftd><\x2Ftr>';
+    }).join('');
+    $('#flowEmpty').style.display = shown.length ? 'none' : 'block';
+
+    // 最近流水
+    var recent = rows.slice(0, 6);
+    $('#recentFlowTbl tbody').innerHTML = recent.map(function (r) {
+      var isIn = selText(r['收支类型']) === '收入';
+      return '<tr><td>' + dstr(r['日期']) + '<\x2Ftd><td>' + esc(selText(r['分类']) || '—') + '<\x2Ftd><td>' + esc(r['账户'] || '—') + '<\x2Ftd>' +
+        '<td class="r ' + (isIn ? 'num-down' : 'num-up') + '" ' + bindAttr('81fOiGR9TGvLWuWvn6aqcA') + '">' +
+        (isIn ? '+' : '-') + plain(r['金额']) + '<\x2Ftd><\x2Ftr>';
+    }).join('');
+    $('#recentFlowEmpty').style.display = recent.length ? 'none' : 'block';
+  }
+
+  function renderHoldings() {
+    var rows = S.holdings, mv = 0, cost = 0;
+    var tbody = $('#holdTbl tbody');
+    tbody.innerHTML = rows.map(function (r) {
+      var q = num(r['持仓数量']), c = num(r['成本价']), p = num(r['现价']);
+      var v = q * p, cb = q * c, pnl = v - cb, pct = cb > 0 ? pnl / cb * 100 : 0;
+      mv += v; cost += cb;
+      var cls = pnl > 0 ? 'num-up' : (pnl < 0 ? 'num-down' : '');
+      return '<tr><td><div class="tname">' + esc(r['标的名称']) + '<\x2Fdiv>' + (r['备注'] ? '<div class="tsub">' + esc(r['备注']) + '<\x2Fdiv>' : '') + '<\x2Ftd>' +
+        '<td><span class="chip chip-grey">' + esc(selText(r['标的类型']) || '—') + '<\x2Fspan><\x2Ftd>' +
+        '<td class="r">' + plain(q, 2) + '<\x2Ftd><td class="r">' + plain(c, 3) + '<\x2Ftd><td class="r">' + plain(p, 3) + '<\x2Ftd>' +
+        '<td class="r" ' + bindAttr('mn9AA3RrDjtqoLGvH7BoYx') + '">' + plain(v) + '<\x2Ftd>' +
+        '<td class="r ' + cls + '">' + (pnl > 0 ? '+' : '') + plain(pnl) + '<\x2Ftd>' +
+        '<td class="r ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%<\x2Ftd><\x2Ftr>';
+    }).join('');
+    $('#holdEmpty').style.display = rows.length ? 'none' : 'block';
+    var pnl = mv - cost, pct = cost > 0 ? pnl / cost * 100 : 0;
+    $('#holdMv').textContent = money(mv);
+    $('#holdCost').textContent = money(cost);
+    var pnlEl = $('#holdPnl');
+    pnlEl.textContent = (pnl > 0 ? '+' : '') + money(pnl).replace('¥', '¥');
+    pnlEl.className = 'k-val sm ' + (pnl > 0 ? 'num-up' : (pnl < 0 ? 'num-down' : ''));
+    var pctEl = $('#holdPnlPct');
+    pctEl.textContent = cost > 0 ? (pct > 0 ? '+' : '') + pct.toFixed(2) + '%' : '—';
+    pctEl.className = 'k-val sm ' + (pct > 0 ? 'num-up' : (pct < 0 ? 'num-down' : ''));
+    $('#kpiHold').textContent = money(mv);
+    $('#kpiHoldSub').textContent = cost > 0 ? ('累计盈亏 ' + (pnl > 0 ? '+' : '') + plain(pnl) + '（' + pct.toFixed(1) + '%）') : '累计盈亏 —';
+    $('#holdDistCard').style.display = rows.length ? 'block' : 'none';
+    var byType = {}, order = [];
+    rows.forEach(function (r) {
+      var t = selText(r['标的类型']) || '未分类';
+      var v = num(r['持仓数量']) * num(r['现价']);
+      if (byType[t] === undefined) { byType[t] = 0; order.push(t); }
+      byType[t] += v;
+    });
+    var tot = 0; order.forEach(function (k) { tot += byType[k]; });
+    $('#holdDist').innerHTML = order.map(function (k, i) {
+      var w = tot > 0 ? Math.max(byType[k] / tot * 100, 2) : 0;
+      return '<i style="width:' + w.toFixed(1) + '%;background:' + HOLD_COLORS[i % HOLD_COLORS.length] + '"><\x2Fi>';
+    }).join('');
+    $('#holdLegend').innerHTML = order.map(function (k, i) {
+      return '<li><span class="dot" style="background:' + HOLD_COLORS[i % HOLD_COLORS.length] + '"><\x2Fspan>' + esc(k) +
+        ' <b>' + money(byType[k]) + '<\x2Fb> <span style="color:var(--ink3)">' + (tot > 0 ? (byType[k] / tot * 100).toFixed(0) : 0) + '%<\x2Fspan><\x2Fli>';
+    }).join('');
+  }
+
+  var MOODS = { '冰点': 1, '低迷': 2, '震荡': 3, '回暖': 4, '亢奋': 5 };
+  function renderMarket() {
+    var rows = S.market;
+    // 情绪温度带
+    var recent = rows.slice(0, 12).reverse();
+    var scale = $('#moodScale');
+    if (!recent.length) {
+      scale.innerHTML = '<div style="color:var(--ink3);font-size:12px;align-self:center">还没有复盘记录，填第一条后这里会显示情绪周期<\x2Fdiv>';
+    } else {
+      scale.innerHTML = recent.map(function (r) {
+        var lv = MOODS[selText(r['市场情绪'])] || 0;
+        var h = 8 + lv * 9;
+        return '<div class="m' + (lv >= 4 ? ' on' : '') + '" style="height:' + h + 'px" title="' + dstr(r['复盘日期']) + ' ' + esc(selText(r['市场情绪'])) + '"><\x2Fdiv>';
+      }).join('');
+    }
+    $('#reviewList').innerHTML = rows.map(function (r) {
+      var sp = num(r['上证涨跌']), cp = num(r['创业板涨跌']);
+      var mood = selText(r['市场情绪']);
+      return '<div class="review">' +
+        '<div class="r-head"><span class="r-date">' + dstr(r['复盘日期']) + '<\x2Fspan>' +
+        (mood ? '<span class="chip' + (mood === '冰点' || mood === '低迷' ? ' chip-down' : (mood === '亢奋' ? ' chip-up' : '')) + '">' + esc(mood) + '<\x2Fspan>' : '') +
+        (r['主线板块'] ? '<span class="chip chip-grey">' + esc(r['主线板块']) + '<\x2Fspan>' : '') +
+        '<\x2Fdiv>' +
+        '<div class="r-idx">' +
+        '<div><label>上证收盘<\x2Flabel><b ' + bindAttr('quqzw0WyRvgslliQJiOaBb') + '>' + (r['上证收盘'] !== undefined && r['上证收盘'] !== null ? plain(r['上证收盘']) : '—') + '<\x2Fb><\x2Fdiv>' +
+        '<div><label>上证涨跌<\x2Flabel><b class="' + (sp > 0 ? 'num-up' : (sp < 0 ? 'num-down' : '')) + '">' + (r['上证涨跌'] !== null && r['上证涨跌'] !== undefined ? (sp > 0 ? '+' : '') + sp.toFixed(2) + '%' : '—') + '<\x2Fb><\x2Fdiv>' +
+        '<div><label>创业板<\x2Flabel><b class="' + (cp > 0 ? 'num-up' : (cp < 0 ? 'num-down' : '')) + '">' + (r['创业板涨跌'] !== null && r['创业板涨跌'] !== undefined ? (cp > 0 ? '+' : '') + cp.toFixed(2) + '%' : '—') + '<\x2Fb><\x2Fdiv>' +
+        '<div><label>成交额<\x2Flabel><b>' + (r['两市成交额'] ? plain(r['两市成交额'], 0) + '亿' : '—') + '<\x2Fb><\x2Fdiv>' +
+        '<\x2Fdiv>' +
+        (r['明日计划'] ? '<div class="r-box"><em>明日计划<\x2Fem>' + esc(r['明日计划']) + '<\x2Fdiv>' : '') +
+        (r['复盘笔记'] ? '<div class="r-box"><em>复盘笔记<\x2Fem>' + esc(r['复盘笔记']) + '<\x2Fdiv>' : '') +
+        '<\x2Fdiv>';
+    }).join('');
+    $('#reviewEmpty').style.display = rows.length ? 'none' : 'block';
+    // 总览最新复盘
+    var last = rows[0];
+    $('#lastReviewDate').textContent = last ? dstr(last['复盘日期']) : '';
+    if (!last) {
+      $('#lastReview').innerHTML = '<div class="empty" style="padding:22px 6px"><b>还没写复盘<\x2Fb>先定好六个维度，再填第一条<\x2Fdiv>';
+    } else {
+      var mood = selText(last['市场情绪']);
+      $('#lastReview').innerHTML =
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<span class="chip' + (mood === '冰点' || mood === '低迷' ? ' chip-down' : (mood === '亢奋' ? ' chip-up' : '')) + '">' + esc(mood || '未标注情绪') + '<\x2Fspan>' +
+        (last['主线板块'] ? '<span class="chip chip-grey">' + esc(last['主线板块']) + '<\x2Fspan>' : '') + '<\x2Fdiv>' +
+        '<div style="display:flex;gap:20px;flex-wrap:wrap">' +
+        '<div><div style="font-size:10.5px;color:var(--ink3)">上证<\x2Fdiv><div style="font-size:18px;font-weight:660" ' + bindAttr('quqzw0WyRvgslliQJiOaBb') + '>' + (last['上证收盘'] !== null && last['上证收盘'] !== undefined ? plain(last['上证收盘']) : '—') + '<\x2Fdiv><\x2Fdiv>' +
+        '<div><div style="font-size:10.5px;color:var(--ink3)">涨跌<\x2Fdiv><div style="font-size:18px;font-weight:660" class="' + (num(last['上证涨跌']) > 0 ? 'num-up' : (num(last['上证涨跌']) < 0 ? 'num-down' : '')) + '">' + (last['上证涨跌'] !== null && last['上证涨跌'] !== undefined ? (num(last['上证涨跌']) > 0 ? '+' : '') + num(last['上证涨跌']).toFixed(2) + '%' : '—') + '<\x2Fdiv><\x2Fdiv>' +
+        '<div><div style="font-size:10.5px;color:var(--ink3)">成交额<\x2Fdiv><div style="font-size:18px;font-weight:660">' + (last['两市成交额'] ? plain(last['两市成交额'], 0) + '亿' : '—') + '<\x2Fdiv><\x2Fdiv>' +
+        '<\x2Fdiv>' +
+        (last['明日计划'] ? '<div style="margin-top:12px;font-size:12.5px;color:var(--ink2);line-height:1.6"><b style="color:var(--ink)">明日计划 · <\x2Fb>' + esc(last['明日计划']) + '<\x2Fdiv>' : '');
+    }
+  }
+  var BIND_ATTRS = {
+    'Bx277AjKMTsAnr9xS5evm1': 'data-sp-bindable="database" data-sp-database-id="Bx277AjKMTsAnr9xS5evm1"',
+    '81fOiGR9TGvLWuWvn6aqcA': 'data-sp-bindable="database" data-sp-database-id="81fOiGR9TGvLWuWvn6aqcA"',
+    'mn9AA3RrDjtqoLGvH7BoYx': 'data-sp-bindable="database" data-sp-database-id="mn9AA3RrDjtqoLGvH7BoYx"',
+    'quqzw0WyRvgslliQJiOaBb': 'data-sp-bindable="database" data-sp-database-id="quqzw0WyRvgslliQJiOaBb"',
+    'JV8GRWcfqzBoVWq7518BaH': 'data-sp-bindable="database" data-sp-database-id="JV8GRWcfqzBoVWq7518BaH"',
+    'bB41KX32VhYdJlQBC6QOMK': 'data-sp-bindable="database" data-sp-database-id="bB41KX32VhYdJlQBC6QOMK"'
+  };
+  function bindAttr(id) { return BIND_ATTRS[id] || ''; }
+
+  /* ---------- 小树苗：渲染 ---------- */
+  function kidProfile() {
+    var name = '小树苗', birth = '';
+    try {
+      name = localStorage.getItem('wb_kid_name') || '小树苗';
+      birth = localStorage.getItem('wb_kid_birth') || '';
+    } catch (e) {}
+    return { name: name, birth: birth };
+  }
+  function ageText(birth) {
+    if (!birth) return '';
+    var b = new Date(birth + 'T00:00:00'), n = new Date();
+    if (isNaN(b.getTime())) return '';
+    var months = (n.getFullYear() - b.getFullYear()) * 12 + (n.getMonth() - b.getMonth());
+    if (n.getDate() < b.getDate()) months -= 1;
+    if (months < 0) return '';
+    var y = Math.floor(months / 12), m = months % 12;
+    return y > 0 ? (y + ' 岁 ' + m + ' 个月') : (m + ' 个月');
+  }
+
+  function renderKidOverview() {
+    var p = kidProfile();
+    var nameEl = $('#kidName'), birthEl = $('#kidBirth');
+    if (nameEl && !nameEl.value) nameEl.value = p.name;
+    if (birthEl && !birthEl.value) birthEl.value = p.birth;
+    var at = ageText(birthEl ? birthEl.value : p.birth);
+    $('#kidAge').textContent = at || '填写生日后自动算年龄';
+    var rows = S.growth;
+    var withH = rows.filter(function (r) { return r['身高'] !== null && r['身高'] !== undefined && num(r['身高']) > 0; });
+    var withW = rows.filter(function (r) { return r['体重'] !== null && r['体重'] !== undefined && num(r['体重']) > 0; });
+    $('#kidHeight').innerHTML = withH.length ? '<span ' + bindAttr('JV8GRWcfqzBoVWq7518BaH') + '>' + plain(withH[0]['身高'], 1) + '<\x2Fspan><span style="font-size:12px;color:var(--ink3);font-weight:400"> cm<\x2Fspan>' : '—';
+    $('#kidWeight').innerHTML = withW.length ? '<span ' + bindAttr('JV8GRWcfqzBoVWq7518BaH') + '>' + plain(withW[0]['体重'], 1) + '<\x2Fspan><span style="font-size:12px;color:var(--ink3);font-weight:400"> kg<\x2Fspan>' : '—';
+    var m = thisMonth();
+    $('#kidMilestone').textContent = rows.filter(function (r) { return dstr(r['记录日期']).indexOf(m) === 0; }).length;
+
+    // 身高曲线
+    drawLineChart($('#heightChart'), withH.slice().reverse(), '身高', '#7BB661', 'cm');
+
+    // 进行中的计划
+    var focus = S.plans.filter(function (r) { return selText(r['状态']) === '进行中'; }).slice(0, 4);
+    if (!focus.length) focus = S.plans.slice(0, 3);
+    $('#focusPlans').innerHTML = focus.length ? focus.map(function (r) {
+      return '<div class="plan"><div class="p-main"><div class="p-name">' + esc(r['计划名称']) + '<\x2Fdiv>' +
+        '<div class="p-meta"><span>' + esc(selText(r['培育维度']) || '—') + '<\x2Fspan>' +
+        (r['执行频率'] ? '<span>· ' + esc(r['执行频率']) + '<\x2Fspan>' : '') + '<\x2Fdiv><\x2Fdiv>' +
+        '<span class="status-btn ' + statusCls(selText(r['状态'])) + '">' + esc(selText(r['状态']) || '待开始') + '<\x2Fspan><\x2Fdiv>';
+    }).join('') : '<div class="empty" style="padding:18px 6px"><b>还没有培育计划<\x2Fb>先定三条这个月要做的<\x2Fdiv>';
+
+    // 最近记录
+    var recent = rows.slice(0, 5);
+    $('#recentGrowth').innerHTML = recent.map(tlItem).join('');
+    $('#recentGrowthEmpty').style.display = recent.length ? 'none' : 'block';
+  }
+
+  function statusCls(s) { return s === '进行中' ? 's2' : (s === '已达成' ? 's3' : 's1'); }
+  function tlItem(r) {
+    var t = selText(r['里程碑类型']);
+    var hw = [];
+    if (r['身高']) hw.push(plain(r['身高'], 1) + 'cm');
+    if (r['体重']) hw.push(plain(r['体重'], 1) + 'kg');
+    return '<div class="tl-i"><div class="tl-date">' + dstr(r['记录日期']) + (t ? ' · ' + esc(t) : '') + '<\x2Fdiv>' +
+      '<div class="tl-body" ' + bindAttr('JV8GRWcfqzBoVWq7518BaH') + '>' + (r['记录内容'] ? '<b>' + esc(r['记录内容']) + '<\x2Fb>' : '') +
+      (hw.length ? (r['记录内容'] ? ' · ' : '') + hw.join('·') : '') + '<\x2Fdiv><\x2Fdiv>';
+  }
+
+  function renderGrowth() {
+    var rows = S.growth;
+    var withH = rows.filter(function (r) { return r['身高'] && num(r['身高']) > 0; }).slice().reverse();
+    var withW = rows.filter(function (r) { return r['体重'] && num(r['体重']) > 0; }).slice().reverse();
+    drawLineChart($('#growthChartH'), withH, '身高', '#7BB661', 'cm');
+    drawLineChart($('#growthChartW'), withW, '体重', '#C9A227', 'kg');
+
+    var counts = {}, order = ['大运动', '精细动作', '语言表达', '认知启蒙', '社交情绪', '生活习惯'];
+    order.forEach(function (k) { counts[k] = 0; });
+    rows.forEach(function (r) {
+      var t = selText(r['里程碑类型']);
+      if (t) { if (counts[t] === undefined) { counts[t] = 0; order.push(t); } counts[t]++; }
+    });
+    var max = 1;
+    order.forEach(function (k) { if (counts[k] > max) max = counts[k]; });
+    var has = rows.some(function (r) { return selText(r['里程碑类型']); });
+    $('#milestoneEmpty').style.display = has ? 'none' : 'block';
+    $('#milestoneDist').innerHTML = order.map(function (k) {
+      var w = counts[k] / max * 100;
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+        '<span style="width:66px;font-size:12px;color:var(--ink2);flex:none">' + k + '<\x2Fspan>' +
+        '<span style="flex:1;height:9px;background:#F0F2EE;border-radius:6px;overflow:hidden">' +
+        '<i style="display:block;height:100%;width:' + w.toFixed(0) + '%;background:linear-gradient(90deg,#B7DCA4,#7BB661);border-radius:6px"><\x2Fi><\x2Fspan>' +
+        '<b style="width:26px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums">' + counts[k] + '<\x2Fb><\x2Fdiv>';
+    }).join('');
+
+    // 成长记录时间轴
+    $('#growthLog').innerHTML = rows.map(tlItem).join('');
+    $('#growthLogEmpty').style.display = rows.length ? 'none' : 'block';
+  }
+
+  function drawLineChart(box, rows, field, color, unit) {
+    if (!box) return;
+    var pts = rows.filter(function (r) { return num(r[field]) > 0; });
+    if (pts.length < 1) {
+      box.innerHTML = '<div class="empty" style="padding:26px 6px">录入 2 条以上' + field + '记录后显示曲线<\x2Fdiv>';
+      return;
+    }
+    var W = 520, H = 168, PL = 38, PR = 12, PT = 14, PB = 26;
+    var vals = pts.map(function (r) { return num(r[field]); });
+    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    if (max === min) { max = min + 2; min = Math.max(min - 2, 0); }
+    var pad = (max - min) * 0.18;
+    min = Math.max(min - pad, 0); max = max + pad;
+    var n = pts.length;
+    function x(i) { return n === 1 ? (PL + PR) / 2 + (W - PL - PR) / 2 : PL + i * (W - PL - PR) / (n - 1); }
+    function y(v) { return PT + (1 - (v - min) / (max - min)) * (H - PT - PB); }
+    var line = pts.map(function (r, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(num(r[field])).toFixed(1); }).join(' ');
+    var area = line + ' L' + x(n - 1).toFixed(1) + ' ' + (H - PB) + ' L' + x(0).toFixed(1) + ' ' + (H - PB) + ' Z';
+    var grid = '', i;
+    for (i = 0; i <= 3; i++) {
+      var gy = PT + i * (H - PT - PB) / 3;
+      var gv = max - i * (max - min) / 3;
+      grid += '<line x1="' + PL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - PR) + '" y2="' + gy.toFixed(1) + '" stroke="#EFF1EC" stroke-width="1"/>' +
+        '<text x="' + (PL - 6) + '" y="' + (gy + 3.5).toFixed(1) + '" text-anchor="end" font-size="9.5" fill="#8D978F">' + gv.toFixed(0) + '<\x2Ftext>';
+    }
+    var dots = pts.map(function (r, i) {
+      return '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(num(r[field])).toFixed(1) + '" r="3.2" fill="#fff" stroke="' + color + '" stroke-width="2"/>';
+    }).join('');
+    var labels = '';
+    var step = Math.ceil(n / 6);
+    pts.forEach(function (r, i) {
+      if (i % step === 0 || i === n - 1) {
+        labels += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="9" fill="#8D978F">' + dstr(r['记录日期']).slice(5) + '<\x2Ftext>';
+      }
+    });
+    var lastVal = vals[vals.length - 1];
+    box.innerHTML = '<div class="chart-legend"><span><i style="background:' + color + '"><\x2Fi>' + field + '（' + unit + '）<\x2Fspan>' +
+      '<span style="margin-left:auto">最新 <b style="color:var(--ink)">' + lastVal.toFixed(1) + unit + '<\x2Fb><\x2Fspan><\x2Fdiv>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block">' +
+      '<defs><linearGradient id="g' + field + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="' + color + '" stop-opacity=".22"/><stop offset="100%" stop-color="' + color + '" stop-opacity="0"/><\x2FlinearGradient><\x2Fdefs>' +
+      grid + '<path d="' + area + '" fill="url(#g' + field + ')"/>' +
+      '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      dots + labels + '<\x2Fsvg>';
+  }
+
+  var DIM_ORDER = ['营养喂养', '睡眠作息', '运动感统', '语言启蒙', '认知早教', '情绪社交', '习惯养成', '安全健康'];
+  var DIM_ICON = { '营养喂养': '🥣', '睡眠作息': '🌙', '运动感统': '🤸', '语言启蒙': '💬', '认知早教': '🧩', '情绪社交': '🫶', '习惯养成': '🪥', '安全健康': '🛡' };
+
+  function renderPlans() {
+    var filter = $('#planFilter') ? $('#planFilter').value : 'all';
+    var rows = S.plans.filter(function (r) { return filter === 'all' || selText(r['状态']) === filter; });
+    var groups = {};
+    rows.forEach(function (r) {
+      var d = selText(r['培育维度']) || '未分类';
+      if (!groups[d]) groups[d] = [];
+      groups[d].push(r);
+    });
+    var keys = Object.keys(groups).sort(function (a, b) {
+      var ia = DIM_ORDER.indexOf(a), ib = DIM_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    $('#planList').innerHTML = keys.map(function (d) {
+      return '<div class="dim-group"><div class="dim-head"><span style="font-size:15px">' + (DIM_ICON[d] || '·') + '<\x2Fspan>' +
+        '<b>' + esc(d) + '<\x2Fb><span class="cnt">' + groups[d].length + ' 项<\x2Fspan><\x2Fdiv>' +
+        groups[d].map(function (r) {
+          var st = selText(r['状态']) || '待开始';
+          var nextMap = { '待开始': '进行中', '进行中': '已达成', '已达成': '待开始' };
+          var rid = r.__id || '';
+          return '<div class="plan"><div class="p-main"><div class="p-name">' + esc(r['计划名称']) + '<\x2Fdiv>' +
+            '<div class="p-meta">' + (r['适合年龄'] ? '<span>' + esc(selText(r['适合年龄'])) + '<\x2Fspan>' : '') +
+            (r['执行频率'] ? '<span>· ' + esc(r['执行频率']) + '<\x2Fspan>' : '') +
+            (r['备注'] ? '<span>· ' + esc(r['备注']) + '<\x2Fspan>' : '') + '<\x2Fdiv><\x2Fdiv>' +
+            '<div class="p-act"><button class="status-btn ' + statusCls(st) + '" data-plan="' + esc(rid) + '" data-next="' + (nextMap[st] || '进行中') + '" ' +
+            (rid ? '' : 'disabled title="数据未联通时不可切换"') + ' ' + bindAttr('bB41KX32VhYdJlQBC6QOMK') + '>' + esc(st) + '<\x2Fbutton><\x2Fdiv><\x2Fdiv>';
+        }).join('') + '<\x2Fdiv>';
+    }).join('');
+    $('#planEmpty').style.display = rows.length ? 'none' : 'block';
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-plan]') : null;
+    if (!btn) return;
+    var rid = btn.getAttribute('data-plan'), next = btn.getAttribute('data-next');
+    if (!db || !rid) return;
+    btn.disabled = true;
+    db.updateRecord({ databaseId: 'bB41KX32VhYdJlQBC6QOMK', recordId: rid, properties: { '状态': { select: next } } })
+      .then(function () { toast('状态已更新为「' + next + '」'); return reload('plans'); })
+      .catch(function (err) { console.error('[updateRecord]', err); toast('更新失败，请稍后重试'); btn.disabled = false; });
+  });
+
+  $('#planFilter') && $('#planFilter').addEventListener('change', renderPlans);
+
+  /* ---------- 育儿锦囊内容 ---------- */
+  var TIPS = [
+    { k: '营养喂养', t: '吃得好，长得稳', body: [
+      { age: '1-2 岁', items: ['每天奶量 400-500ml，三餐两点逐步替代奶为主', '铁是重点：红肉、肝泥、强化铁米粉，每周至少 3 次红肉', '食物切成小丁，避免整颗坚果、果冻、葡萄等呛噎风险', '1 岁后辅食不加盐糖，用天然食材味道建立口味'] },
+      { age: '3-4 岁', items: ['每天 1 个鸡蛋、300-500ml 奶、50-75g 肉禽鱼', '蔬菜水果各 150-250g，深色蔬菜占一半', '允许挑食但不强迫，一种新食物需尝试 8-15 次', '含糖饮料、果汁每天不超过 120ml，优先白水'] },
+      { age: '5-6 岁', items: ['保证优质蛋白，每周 1-2 次深海鱼补充 DHA', '维生素 D 坚持补充 400-600IU/天（遵医嘱）', '参与买菜、洗菜、摆盘，参与感能显著提升进食意愿', '早餐必须吃，主食 + 蛋白 + 果蔬三件套'] }
+    ] },
+    { k: '睡眠作息', t: '睡够了才长得高', body: [
+      { age: '1-2 岁', items: ['全天睡眠 11-14 小时，含 1-2 次午睡', '固定睡前程序：洗澡 → 换睡衣 → 绘本 → 关灯，顺序不变', '睡前 1 小时不看屏幕，光线调暗', '夜醒先观察 1-2 分钟，不要立刻抱起'] },
+      { age: '3-4 岁', items: ['全天 10-13 小时，午睡 1-2 小时', '20:30-21:00 入睡较理想，生长激素在深睡期分泌最旺', '用"再讲一本就睡"的固定边界，代替临场谈判', '卧室只做睡觉的事，玩具和屏幕移出房间'] },
+      { age: '5-6 岁', items: ['全天 10-13 小时，午睡可逐步取消但需保证夜间时长', '培养独立入睡：先在床边，再逐步退到门口', '睡前聊 5 分钟"今天最开心的事"，比催促更助眠', '周末作息不偏离超过 1 小时'] }
+    ] },
+    { k: '运动感统', t: '身体是所有能力的地基', body: [
+      { age: '1-2 岁', items: ['每天户外 1-2 小时，晒太阳促进维 D 合成', '爬楼梯、推拉玩具、蹲起捡物，练下肢与平衡', '允许光脚在安全地面走，足底刺激有助感统发育', '荡秋千、转圈、翻滚，前庭觉游戏每天玩几次'] },
+      { age: '3-4 岁', items: ['每天累计 3 小时活动，其中 1 小时中高强度', '双脚跳、单脚站 3-5 秒、抛接球，练协调', '跳绳从"甩绳+跨过"开始，不追求连续跳', '玩沙子、捏橡皮泥、撕纸，练手部小肌肉'] },
+      { age: '5-6 岁', items: ['学拍球、跳绳、骑平衡车、自行车，建立运动自信', '每天户外 2 小时，近视防控的关键因素', '攀爬、平衡木、跳格子，练本体觉与空间感', '避免过早专项化训练，多样化比强度更重要'] }
+    ] },
+    { k: '语言启蒙', t: '说得多，读得多', body: [
+      { age: '1-2 岁', items: ['每天亲子共读 10-15 分钟，布书、洞洞书、翻翻书', '把孩子的单词扩展成句子："球" → "这是红色的球"', '不纠正发音，重复正确说法即可', '少用"宝宝语"，用完整、清晰、稍慢的成人语言'] },
+      { age: '3-4 岁', items: ['每天共读 15-20 分钟，开始有情节的绘本', '多问开放问题："你觉得它为什么哭了？"', '2-3 岁是语言爆发期，词汇量差异在这时拉开', '屏幕不能替代对话，视频通话除外'] },
+      { age: '5-6 岁', items: ['鼓励复述故事、讲今天发生的事，练叙事能力', '玩词语接龙、猜谜、编故事结尾', '接触拼音与汉字敏感期，但不强制提前写字', '中英双语环境可以同时进行，不必担心混淆'] }
+    ] },
+    { k: '认知早教', t: '玩就是学', body: [
+      { age: '1-2 岁', items: ['客体永久性游戏：藏玩具让她找', '简单因果玩具：按一下会响、拉一下会动', '认识 3-5 种颜色和常见动物，在生活里指认', '不打断专注：她自己玩时不要频繁递新玩具'] },
+      { age: '3-4 岁', items: ['假装游戏是核心：过家家、看病、当老师', '数感从"手口一致点数 1-10"开始，不必写数字', '拼图 12-24 片、配对、分类游戏', '前运算阶段：理解世界靠直觉，讲道理要具体'] },
+      { age: '5-6 岁', items: ['10 以内加减法用实物操作，不刷题', '时间与顺序概念：昨天、今天、明天，一周七天', '简单科学启蒙：沉浮、磁铁、影子、种子发芽', '保护提问：把"为什么"变成一起查答案'] }
+    ] },
+    { k: '情绪社交', t: '先被理解，才学会理解别人', body: [
+      { age: '1-2 岁', items: ['自我意识萌芽，"不要"是正常发育，给有限选择代替命令', '情绪爆发时先抱住、命名情绪："你很生气，因为积木倒了"', '不贴"爱哭""胆小"的标签', '固定的主要照护者能建立安全依恋'] },
+      { age: '3-4 岁', items: ['共情三步：命名情绪 → 接纳情绪 → 给出可做的方法', '平行游戏过渡到合作游戏，教"我可以一起玩吗"', '冲突时不急着当法官，先让双方说出发生了什么', '女孩也会有攻击性，允许表达愤怒，教不伤人的方式'] },
+      { age: '5-6 岁', items: ['开始在意同伴评价，教她识别"真朋友"', '性别意识增强：身体界限、泳衣原则要讲清楚', '练习等待、轮流、输了也能继续玩', '每天留 10 分钟专属陪伴，不谈学习只谈她'] }
+    ] },
+    { k: '习惯养成', t: '小事自己做', body: [
+      { age: '1-2 岁', items: ['自己拿勺吃饭，弄脏也没关系', '收玩具变成游戏："我们送积木回家"', '固定作息与地点吃饭、睡觉，建立秩序感', '2 岁前尽量不看屏幕'] },
+      { age: '3-4 岁', items: ['自己穿脱简单衣物、鞋袜，练习扣扣子', '如厕训练完成，夜间尿床不责备', '2-5 岁屏幕时间每天不超过 1 小时，且需陪伴共看', '家务：擦桌子、把脏衣服放进篮子'] },
+      { age: '5-6 岁', items: ['自己整理书包、收拾房间、准备第二天衣物', '承担一项固定家务，如浇花、摆碗筷', '规则一次说清、全家一致，不因哭闹改变', '用可视化清单代替反复催促'] }
+    ] },
+    { k: '安全健康', t: '底线不能松', body: [
+      { age: '1-2 岁', items: ['按国家免疫规划接种，留存接种证', '防坠落：窗边不摆可攀爬家具，床加护栏', '防误吞：小物件收高，抽屉加安全锁', '洗澡水温先放冷水，热水器温度 ≤49℃'] },
+      { age: '3-4 岁', items: ['教身体隐私：背心裤衩覆盖的地方不许别人碰', '记住家长姓名电话，走失时找穿制服的人', '每年视力筛查，控制近距离用眼时长', '药品、清洁剂单独上锁收纳'] },
+      { age: '5-6 岁', items: ['交通安全：安全座椅用到身高 145cm 或 12 岁', '防溺水：任何时候不单独靠近水域', '教"不舒服的秘密一定要告诉妈妈"，建立求助通道', '每年一次口腔检查，窝沟封闭与涂氟'] }
+    ] }
+  ];
+
+  function renderTips() {
+    $('#tipsGrid').innerHTML = TIPS.map(function (t, i) {
+      return '<div class="tip' + (i === 0 ? ' open' : '') + '"><div class="tip-h" data-tip="' + i + '">' +
+        '<span class="tip-ico">' + (DIM_ICON[t.k] || '·') + '<\x2Fspan><b>' + t.k + '<\x2Fb>' +
+        '<span style="font-size:11px;color:var(--ink3)">' + t.t + '<\x2Fspan><span class="arw">▸<\x2Fspan><\x2Fdiv>' +
+        '<div class="tip-b"><div class="tip-in">' + t.body.map(function (b) {
+          return '<div class="age-block"><label>' + b.age + '<\x2Flabel><ul>' + b.items.map(function (x) {
+            return '<li>' + x + '<\x2Fli>';
+          }).join('') + '<\x2Ful><\x2Fdiv>';
+        }).join('') + '<\x2Fdiv><\x2Fdiv><\x2Fdiv>';
+    }).join('');
+  }
+  document.addEventListener('click', function (e) {
+    var h = e.target.closest ? e.target.closest('[data-tip]') : null;
+    if (!h) return;
+    var card = h.parentNode;
+    card.classList.toggle('open');
+  });
+
+  /* ---------- 汇总刷新 ---------- */
+  function refreshAll() {
+    renderAccounts();
+    renderFlows(currentFilter);
+    renderHoldings();
+    renderMarket();
+    renderKidOverview();
+    renderGrowth();
+    renderPlans();
+  }
+  var currentFilter = 'all';
+
+  /* ---------- 初始化 ---------- */
+  function init() {
+    var d = new Date();
+    var wk = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
+    $('#topDate').textContent = d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日 · 周' + wk;
+    renderNav('finance');
+    renderTips();
+    $$('input[type="date"]').forEach(function (el) {
+      if (el.getAttribute('data-keep') !== '1') el.value = today();
+    });
+    $$('.f-filter').forEach(function (b) {
+      b.addEventListener('click', function () {
+        currentFilter = b.getAttribute('data-filter');
+        $$('.f-filter').forEach(function (x) { x.classList.toggle('active', x === b); });
+        renderFlows(currentFilter);
+      });
+    });
+    var nameEl = $('#kidName'), birthEl = $('#kidBirth');
+    var p = kidProfile();
+    nameEl.value = p.name; birthEl.value = p.birth;
+    nameEl.addEventListener('change', function () {
+      try { localStorage.setItem('wb_kid_name', nameEl.value); } catch (e) {}
+      toast('昵称已保存');
+    });
+    birthEl.addEventListener('change', function () {
+      try { localStorage.setItem('wb_kid_birth', birthEl.value); } catch (e) {}
+      $('#kidAge').textContent = ageText(birthEl.value) || '填写生日后自动算年龄';
+      renderKidOverview();
+    });
+
+    // 绑定表单
+    bindForm('accounts', 'acct', function (f) {
+      var p = {};
+      p['账户名称'] = { text: val(f, 'acct_name') };
+      if (val(f, 'acct_type')) p['账户类型'] = { select: val(f, 'acct_type') };
+      p['当前余额'] = { number: parseFloat(val(f, 'acct_balance') || '0') };
+      if (val(f, 'acct_owner')) p['归属'] = { select: val(f, 'acct_owner') };
+      if (val(f, 'acct_date')) p['更新日期'] = { date: val(f, 'acct_date') };
+      if (val(f, 'acct_note')) p['备注'] = { text: val(f, 'acct_note') };
+      return p;
+    });
+    bindForm('flows', 'flow', function (f) {
+      var p = {};
+      p['日期'] = { date: val(f, 'flow_date') || today() };
+      if (val(f, 'flow_type')) p['收支类型'] = { select: val(f, 'flow_type') };
+      if (val(f, 'flow_cat')) p['分类'] = { select: val(f, 'flow_cat') };
+      p['金额'] = { number: parseFloat(val(f, 'flow_amount') || '0') };
+      if (val(f, 'flow_acct')) p['账户'] = { text: val(f, 'flow_acct') };
+      if (val(f, 'flow_note')) p['备注'] = { text: val(f, 'flow_note') };
+      return p;
+    });
+    bindForm('holdings', 'hold', function (f) {
+      var p = {};
+      p['标的名称'] = { text: val(f, 'hold_name') };
+      if (val(f, 'hold_type')) p['标的类型'] = { select: val(f, 'hold_type') };
+      p['持仓数量'] = { number: parseFloat(val(f, 'hold_qty') || '0') };
+      p['成本价'] = { number: parseFloat(val(f, 'hold_cost') || '0') };
+      p['现价'] = { number: parseFloat(val(f, 'hold_price') || '0') };
+      if (val(f, 'hold_note')) p['备注'] = { text: val(f, 'hold_note') };
+      return p;
+    });
+    bindForm('market', 'review', function (f) {
+      var p = {};
+      p['复盘日期'] = { date: val(f, 'rev_date') || today() };
+      var sh = numOrNull(f, 'rev_sh'); if (sh !== null) p['上证收盘'] = { number: sh };
+      var sp = numOrNull(f, 'rev_sh_pct'); if (sp !== null) p['上证涨跌'] = { number: sp };
+      var cp = numOrNull(f, 'rev_cyb_pct'); if (cp !== null) p['创业板涨跌'] = { number: cp };
+      var am = numOrNull(f, 'rev_amount'); if (am !== null) p['两市成交额'] = { number: am };
+      if (val(f, 'rev_mood')) p['市场情绪'] = { select: val(f, 'rev_mood') };
+      if (val(f, 'rev_sector')) p['主线板块'] = { text: val(f, 'rev_sector') };
+      if (val(f, 'rev_plan')) p['明日计划'] = { text: val(f, 'rev_plan') };
+      if (val(f, 'rev_note')) p['复盘笔记'] = { text: val(f, 'rev_note') };
+      return p;
+    });
+    bindForm('growth', 'grow', function (f) {
+      var p = {};
+      p['记录日期'] = { date: val(f, 'grow_date') || today() };
+      var m = numOrNull(f, 'grow_month'); if (m !== null) p['月龄'] = { number: m };
+      if (val(f, 'grow_type')) p['里程碑类型'] = { select: val(f, 'grow_type') };
+      var h = numOrNull(f, 'grow_height'); if (h !== null) p['身高'] = { number: h };
+      var w = numOrNull(f, 'grow_weight'); if (w !== null) p['体重'] = { number: w };
+      if (val(f, 'grow_content')) p['记录内容'] = { text: val(f, 'grow_content') };
+      return p;
+    });
+    bindForm('plans', 'plan', function (f) {
+      var p = {};
+      p['计划名称'] = { text: val(f, 'plan_name') };
+      if (val(f, 'plan_dim')) p['培育维度'] = { select: val(f, 'plan_dim') };
+      if (val(f, 'plan_age')) p['适合年龄'] = { select: val(f, 'plan_age') };
+      if (val(f, 'plan_freq')) p['执行频率'] = { text: val(f, 'plan_freq') };
+      p['状态'] = { select: val(f, 'plan_status') || '待开始' };
+      if (val(f, 'plan_note')) p['备注'] = { text: val(f, 'plan_note') };
+      return p;
+    });
+
+    if (!db) {
+      $('#kpiNetSub').textContent = '当前为预览状态，数据联通后自动汇总';
+      return;
+    }
+    loadSchemas().then(function () {
+      fillAllSelects();
+      $$('form').forEach(function (f) { restoreValues(f); });
+      var keys = Object.keys(DB), done = 0;
+      keys.forEach(function (k) {
+        loadAll(k, function (rows) {
+          rows.forEach(function (r) { if (r && r.__id === undefined) r.__id = r._id || r.record_id || r.id || ''; });
+          S[k] = rows;
+          done++;
+          refillSafe(k);
+          if (done === keys.length) refreshAll();
+        });
+      });
+    });
+  }
+  function refillSafe() { try { refreshAll(); } catch (e) { console.error(e); } }
+  function reload(key) {
+    return new Promise(function (resolve) {
+      loadAll(key, function (rows) {
+        rows.forEach(function (r) { if (r && r.__id === undefined) r.__id = r._id || r.record_id || r.id || ''; });
+        S[key] = rows; refreshAll(); resolve(rows);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
+</script>
+</body>
+</html>
